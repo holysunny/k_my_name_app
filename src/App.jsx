@@ -18,9 +18,9 @@ const GOODS = [
 ];
 
 const STEPS = [
-  { emoji:"🔍", kr:"얼굴 분석 중...", en:"Analyzing your face..."   },
-  { emoji:"☯️", kr:"사주 계산 중...", en:"Calculating your Saju..."  },
-  { emoji:"✍️", kr:"이름 짓는 중...", en:"Crafting your name..."     },
+  { en:"Analyzing your face...",   kr:"얼굴 분석 중..."  },
+  { en:"Calculating your Saju...", kr:"사주 계산 중..."  },
+  { en:"Crafting your name...",    kr:"이름 짓는 중..."  },
 ];
 
 const SPARKLE_POS = [
@@ -50,7 +50,6 @@ const CSS = `
   }
 `;
 
-/* Sparkles adapted for light background */
 function Sparkles() {
   return (
     <>
@@ -65,7 +64,16 @@ function Sparkles() {
   );
 }
 
-/* Dark purple gradient (original) */
+/* EN 메인 / KR 보조 텍스트 컴포넌트 */
+function BiLabel({ en, kr, enStyle={}, krStyle={} }) {
+  return (
+    <div>
+      <span style={enStyle}>{en}</span>
+      <span style={{ display:"block", opacity:0.45, fontSize:"0.85em", marginTop:1, ...krStyle }}>{kr}</span>
+    </div>
+  );
+}
+
 const pageBg = {
   background:"linear-gradient(145deg, #6d28d9 0%, #7c3aed 30%, #a855f7 65%, #8b5cf6 100%)",
   minHeight:"100vh", display:"flex", flexDirection:"column",
@@ -163,9 +171,8 @@ Return ONLY valid JSON, no markdown:
       const json   = raw.replace(/```json\n?/g,"").replace(/```\n?/g,"").trim();
       const parsed = JSON.parse(json);
 
-      /* No-face guard */
       if (parsed.error === "no_face") {
-        setError("👤 사진에서 얼굴을 찾을 수 없어요!\nPlease upload a selfie or portrait photo — not an object or landscape.");
+        setError("No face detected. Please upload a selfie or portrait photo.\n얼굴을 찾을 수 없어요. 셀피나 인물 사진을 올려주세요.");
         setStep("upload");
         return;
       }
@@ -179,18 +186,21 @@ Return ONLY valid JSON, no markdown:
     }
   };
 
-  /* ─── Shared button styles ─── */
+  /* ─── Shared styles ─── */
   const btn = {
-    display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+    display:"flex", alignItems:"center", justifyContent:"center",
+    flexDirection:"column", gap:2,
     background:"#7c3aed", color:"#fff", border:"none",
-    borderRadius:14, padding:"14px 28px",
+    borderRadius:14, padding:"13px 28px",
     fontSize:15, fontWeight:600, cursor:"pointer",
     width:"100%", boxSizing:"border-box",
   };
+  const btnSub = { display:"block", fontSize:11, fontWeight:400, opacity:0.55, marginTop:1 };
   const btnOutline = {
     ...btn, background:"transparent", color:"#7c3aed",
     border:"2px solid #7c3aed", marginTop:10,
   };
+  const btnOutlineSub = { ...btnSub, opacity:0.5 };
   const btnGlass = {
     ...btn,
     background:"rgba(255,255,255,0.18)",
@@ -217,7 +227,6 @@ Return ONLY valid JSON, no markdown:
         <div style={{ fontSize:40, marginBottom:6 }}>✨</div>
         <h1 style={{ fontSize:30, fontWeight:900, margin:"0 0 18px", letterSpacing:3 }}>K-MY NAME</h1>
 
-        {/* Hook copy */}
         <p style={{ fontSize:26, fontWeight:900, margin:"0 0 2px", lineHeight:1.25,
           textShadow:"0 2px 16px rgba(0,0,0,0.25)" }}>
           What's your<br/>Korean name?
@@ -240,12 +249,8 @@ Return ONLY valid JSON, no markdown:
           단지 몰랐을 뿐이에요.
         </p>
 
-        <p style={{ fontSize:12, opacity:0.6, letterSpacing:2, fontWeight:700, margin:0 }}>
-          — Discover it now ↓
-        </p>
-        <p style={{ fontSize:10, opacity:0.35, letterSpacing:1, fontWeight:500, margin:"2px 0 0" }}>
-          지금 알아보세요
-        </p>
+        <p style={{ fontSize:12, opacity:0.6, letterSpacing:2, fontWeight:700, margin:0 }}>— Discover it now ↓</p>
+        <p style={{ fontSize:10, opacity:0.35, letterSpacing:1, fontWeight:500, margin:"2px 0 0" }}>지금 알아보세요</p>
       </div>
 
       <div style={{
@@ -256,36 +261,39 @@ Return ONLY valid JSON, no markdown:
       }}>
         <p style={{ fontSize:13, color:"#6b7280", lineHeight:1.7, marginBottom:20, textAlign:"center" }}>
           🤳 Selfie + 📅 Birth date<br/>
-          <span style={{ fontSize:12, color:"#9ca3af" }}>
-            AI analyzes your face &amp; Saju to craft your name
-          </span>
+          <span style={{ fontSize:11, color:"#9ca3af" }}>AI analyzes your face &amp; Saju to craft your name</span>
         </p>
 
-        {/* Selfie button — front camera */}
+        {/* Selfie — front camera */}
         <label style={{ ...btn, cursor:"pointer", marginBottom:10 }}>
-          🤳 셀피 찍기 · Take Selfie
+          🤳 Take Selfie
+          <span style={btnSub}>셀피 찍기</span>
           <input type="file" accept="image/*" capture="user" onChange={handlePhoto} style={{ display:"none" }} />
         </label>
 
-        {/* Gallery upload button */}
+        {/* Gallery */}
         <label style={{
-          display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+          display:"flex", alignItems:"center", justifyContent:"center",
+          flexDirection:"column", gap:2,
           background:"transparent", color:"#7c3aed",
           border:"2px solid #7c3aed", borderRadius:14, padding:"13px 28px",
           fontSize:15, fontWeight:600, cursor:"pointer",
           width:"100%", boxSizing:"border-box",
         }}>
-          📁 갤러리에서 선택 · Choose from Gallery
+          📁 Choose from Gallery
+          <span style={{ fontSize:11, fontWeight:400, opacity:0.5, marginTop:1 }}>갤러리에서 선택</span>
           <input type="file" accept="image/*" onChange={handlePhoto} style={{ display:"none" }} />
         </label>
 
         <div style={{ marginTop:14, textAlign:"center", borderTop:"1px solid #f0f0f0", paddingTop:12 }}>
-          <p style={{ fontSize:11, color:"#9ca3af", margin:"0 0 4px" }}>
-            🔒 사진은 저장되지 않습니다 · Photos are not stored
+          <p style={{ fontSize:11, color:"#9ca3af", margin:"0 0 3px" }}>
+            🔒 Photos are not stored
           </p>
-          <p style={{ fontSize:11, color:"#9ca3af", margin:0 }}>
-            오락 목적으로 제공됩니다 · For entertainment purposes only ✨
+          <p style={{ fontSize:10, color:"#c4c4c4", margin:"0 0 6px" }}>사진은 저장되지 않습니다</p>
+          <p style={{ fontSize:11, color:"#9ca3af", margin:"0 0 2px" }}>
+            For entertainment purposes only ✨
           </p>
+          <p style={{ fontSize:10, color:"#c4c4c4", margin:0 }}>오락 목적으로 제공됩니다</p>
         </div>
       </div>
     </div>
@@ -304,9 +312,10 @@ Return ONLY valid JSON, no markdown:
           background:"linear-gradient(90deg,#6d28d9,#a855f7)",
           WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent",
         }}>K-MY NAME</div>
-        <p style={{ fontSize:12, color:"#9ca3af", marginTop:4 }}>
-          ✦ 생년월일을 입력해주세요 · Enter your birth date ✦
+        <p style={{ fontSize:12, color:"#7c3aed", marginTop:4, fontWeight:600 }}>
+          ✦ Enter your birth date
         </p>
+        <p style={{ fontSize:11, color:"#9ca3af", margin:"2px 0 0" }}>생년월일을 입력해주세요</p>
       </div>
 
       {error && (
@@ -326,9 +335,10 @@ Return ONLY valid JSON, no markdown:
             boxShadow:"0 4px 20px rgba(124,58,237,0.3)",
           }} />
           <div>
-            <label style={{ display:"inline-flex", alignItems:"center", gap:6, marginTop:10,
-              cursor:"pointer", color:"#7c3aed", fontSize:13, fontWeight:600 }}>
-              📸 Change photo
+            <label style={{ display:"inline-flex", flexDirection:"column", alignItems:"center",
+              gap:2, marginTop:10, cursor:"pointer", color:"#7c3aed", fontSize:13, fontWeight:600 }}>
+              📸 Change Photo
+              <span style={{ fontSize:10, opacity:0.5, fontWeight:400 }}>사진 변경</span>
               <input type="file" accept="image/*" onChange={handlePhoto} style={{ display:"none" }} />
             </label>
           </div>
@@ -340,33 +350,38 @@ Return ONLY valid JSON, no markdown:
         border:"1px solid rgba(139,92,246,0.12)" }}>
         <div style={{ display:"grid", gridTemplateColumns:"2fr 1fr 1fr", gap:10, marginBottom:14 }}>
           <div>
-            <label style={labelStyle}>연도 Year</label>
+            <label style={labelStyle}>Year<span style={{ fontWeight:400, opacity:0.5, marginLeft:4 }}>연도</span></label>
             <input style={inputStyle} type="number" placeholder="e.g. 1995" min="1900" max="2024"
               value={birth.year} onChange={e => setBirth(p => ({ ...p, year:e.target.value }))} />
           </div>
           <div>
-            <label style={labelStyle}>월 Mo</label>
+            <label style={labelStyle}>Month<span style={{ fontWeight:400, opacity:0.5, marginLeft:4 }}>월</span></label>
             <input style={inputStyle} type="number" placeholder="1-12" min="1" max="12"
               value={birth.month} onChange={e => setBirth(p => ({ ...p, month:e.target.value }))} />
           </div>
           <div>
-            <label style={labelStyle}>일 Day</label>
+            <label style={labelStyle}>Day<span style={{ fontWeight:400, opacity:0.5, marginLeft:4 }}>일</span></label>
             <input style={inputStyle} type="number" placeholder="1-31" min="1" max="31"
               value={birth.day} onChange={e => setBirth(p => ({ ...p, day:e.target.value }))} />
           </div>
         </div>
         <div style={{ marginBottom:20 }}>
-          <label style={labelStyle}>태어난 시간 (선택) · Birth hour (optional)</label>
+          <label style={labelStyle}>
+            Birth Hour (optional)
+            <span style={{ fontWeight:400, opacity:0.5, marginLeft:4 }}>태어난 시간 (선택)</span>
+          </label>
           <select style={inputStyle} value={birth.hour}
             onChange={e => setBirth(p => ({ ...p, hour:e.target.value }))}>
             {HOURS.map(h => <option key={h} value={h}>{h}</option>)}
           </select>
         </div>
         <button style={{ ...btn, opacity:birthValid ? 1 : 0.45 }} disabled={!birthValid} onClick={analyze}>
-          🔮 이름 &amp; 사주 분석하기 · Analyze
+          🔮 Analyze My Name
+          <span style={btnSub}>이름 &amp; 사주 분석하기</span>
         </button>
         <button style={btnOutline} onClick={() => { setPhoto(null); setStep("home"); }}>
-          ← 뒤로 · Back
+          ← Back
+          <span style={btnOutlineSub}>뒤로 가기</span>
         </button>
       </div>
     </div>
@@ -381,9 +396,13 @@ Return ONLY valid JSON, no markdown:
         <Sparkles />
         <div style={{ textAlign:"center", zIndex:1 }}>
           <div style={{ fontSize:64, marginBottom:20, display:"inline-block",
-            animation:"pulse 1.4s ease-in-out infinite" }}>{cur.emoji}</div>
-          <h2 style={{ fontSize:22, fontWeight:700, margin:"0 0 6px", color:"#fff" }}>{cur.kr}</h2>
-          <p style={{ fontSize:14, color:"#fff", opacity:0.7 }}>{cur.en}</p>
+            animation:"pulse 1.4s ease-in-out infinite" }}>
+            {["🔍","☯️","✍️"][analyzing % 3]}
+          </div>
+          {/* English main */}
+          <h2 style={{ fontSize:22, fontWeight:700, margin:"0 0 5px", color:"#fff" }}>{cur.en}</h2>
+          {/* Korean secondary */}
+          <p style={{ fontSize:13, color:"rgba(255,255,255,0.45)", margin:0 }}>{cur.kr}</p>
           <div style={{ display:"flex", gap:8, justifyContent:"center", marginTop:24 }}>
             {[0,1,2,3,4].map(i => (
               <div key={i} style={{
@@ -404,7 +423,6 @@ Return ONLY valid JSON, no markdown:
       <style>{CSS}</style>
       <Sparkles />
 
-      {/* Name Card — dark glass on dark bg */}
       <div style={{
         background:"rgba(255,255,255,0.13)",
         backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)",
@@ -414,7 +432,6 @@ Return ONLY valid JSON, no markdown:
         animation:"fadeUp 0.7s ease",
         boxShadow:"0 24px 64px rgba(0,0,0,0.35)",
       }}>
-        {/* Header */}
         <div style={{ textAlign:"center", padding:"13px 0 6px",
           color:"rgba(255,255,255,0.65)", fontSize:10, letterSpacing:4, fontWeight:700 }}>
           YOUR KOREAN NAME
@@ -422,7 +439,6 @@ Return ONLY valid JSON, no markdown:
 
         {/* Photo + Name */}
         <div style={{ display:"flex", minHeight:210 }}>
-          {/* Photo – left, fades right */}
           <div style={{ width:"46%", position:"relative", overflow:"hidden", flexShrink:0 }}>
             {photo && (
               <img src={photo} alt="you" style={{
@@ -433,12 +449,13 @@ Return ONLY valid JSON, no markdown:
               }}/>
             )}
           </div>
-
-          {/* Name – right, white text */}
           <div style={{ flex:1, padding:"20px 16px 16px 8px",
             display:"flex", flexDirection:"column", justifyContent:"center", gap:10 }}>
+            {/* Korean name — exception: stays Korean */}
             <div style={{ fontSize:54, fontWeight:900, color:"#fff",
-              lineHeight:1, letterSpacing:-1, textShadow:"0 2px 12px rgba(0,0,0,0.4)" }}>{result.korean}</div>
+              lineHeight:1, letterSpacing:-1, textShadow:"0 2px 12px rgba(0,0,0,0.4)" }}>
+              {result.korean}
+            </div>
             <div style={{ fontSize:12, color:"rgba(255,255,255,0.75)", letterSpacing:4, fontWeight:700 }}>
               {result.romanization}
             </div>
@@ -453,25 +470,27 @@ Return ONLY valid JSON, no markdown:
           </div>
         </div>
 
-        {/* Personality quote */}
-        <div style={{ padding:"14px 20px 10px", textAlign:"center",
-          background:"rgba(0,0,0,0.08)" }}>
+        {/* Personality — EN first, KR below */}
+        <div style={{ padding:"14px 20px 10px", textAlign:"center", background:"rgba(0,0,0,0.08)" }}>
           <div style={{ color:"#fbbf24", fontSize:30, lineHeight:0.6, marginBottom:8 }}>"</div>
-          <p style={{ color:"#fff", fontSize:13, lineHeight:1.75, margin:"0 0 7px" }}>
-            {result.personality}
-          </p>
           {result.personalityEn && (
-            <p style={{ color:"rgba(255,255,255,0.65)", fontSize:12, lineHeight:1.6, margin:0, fontStyle:"italic" }}>
+            <p style={{ color:"#fff", fontSize:13, lineHeight:1.75, margin:"0 0 8px" }}>
               {result.personalityEn}
             </p>
           )}
+          <p style={{ color:"rgba(255,255,255,0.45)", fontSize:11, lineHeight:1.6, margin:0, fontStyle:"italic" }}>
+            {result.personality}
+          </p>
           <div style={{ color:"#fbbf24", fontSize:30, lineHeight:0.6, marginTop:8 }}>"</div>
         </div>
 
         {/* Traits */}
         <div style={{ padding:"14px 16px" }}>
           <div style={{ textAlign:"center", fontSize:9, color:"rgba(255,255,255,0.45)",
-            letterSpacing:4, fontWeight:700, marginBottom:12 }}>TRAITS · 성격</div>
+            letterSpacing:4, fontWeight:700, marginBottom:12 }}>
+            TRAITS
+            <span style={{ fontWeight:400, marginLeft:6, opacity:0.6 }}>성격</span>
+          </div>
           <div style={{ display:"flex", justifyContent:"space-around" }}>
             {(result.traits||[]).map((t,i) => (
               <div key={i} style={{ textAlign:"center" }}>
@@ -483,31 +502,36 @@ Return ONLY valid JSON, no markdown:
                   fontSize:22, margin:"0 auto 6px",
                 }}>{t.emoji}</div>
                 <div style={{ color:"#fff", fontSize:11, fontWeight:700 }}>{t.en}</div>
-                <div style={{ color:"rgba(255,255,255,0.55)", fontSize:10, marginTop:1 }}>{t.kr}</div>
+                <div style={{ color:"rgba(255,255,255,0.45)", fontSize:10, marginTop:1 }}>{t.kr}</div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Lucky Color + Number */}
-        <div style={{ display:"flex", gap:8, padding:"10px 14px",
-          background:"rgba(0,0,0,0.12)" }}>
-          <div style={{ flex:1, background:"rgba(255,255,255,0.1)", borderRadius:12,
-            padding:"10px 12px" }}>
+        {/* Lucky */}
+        <div style={{ display:"flex", gap:8, padding:"10px 14px", background:"rgba(0,0,0,0.12)" }}>
+          <div style={{ flex:1, background:"rgba(255,255,255,0.1)", borderRadius:12, padding:"10px 12px" }}>
             <div style={{ fontSize:9, color:"rgba(255,255,255,0.45)", letterSpacing:2,
-              fontWeight:700, marginBottom:5 }}>LUCKY COLOR · 행운의 색</div>
+              fontWeight:700, marginBottom:5 }}>
+              LUCKY COLOR
+              <span style={{ fontWeight:400, marginLeft:4, opacity:0.6 }}>행운의 색</span>
+            </div>
             <div style={{ display:"flex", alignItems:"center", gap:7 }}>
               <div style={{ width:14, height:14, borderRadius:"50%",
                 background:result.luckyColorHex||"#c084fc",
                 border:"1.5px solid rgba(255,255,255,0.6)", flexShrink:0 }}/>
-              <span style={{ color:"#fff", fontSize:13, fontWeight:700 }}>{result.luckyColor}</span>
-              <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>{result.luckyColorKr}</span>
+              <div>
+                <span style={{ color:"#fff", fontSize:13, fontWeight:700 }}>{result.luckyColor}</span>
+                <span style={{ display:"block", color:"rgba(255,255,255,0.45)", fontSize:10 }}>{result.luckyColorKr}</span>
+              </div>
             </div>
           </div>
-          <div style={{ flex:1, background:"rgba(255,255,255,0.1)", borderRadius:12,
-            padding:"10px 12px" }}>
+          <div style={{ flex:1, background:"rgba(255,255,255,0.1)", borderRadius:12, padding:"10px 12px" }}>
             <div style={{ fontSize:9, color:"rgba(255,255,255,0.45)", letterSpacing:2,
-              fontWeight:700, marginBottom:3 }}>LUCKY NUMBER · 행운의 숫자</div>
+              fontWeight:700, marginBottom:3 }}>
+              LUCKY NUMBER
+              <span style={{ fontWeight:400, marginLeft:4, opacity:0.6 }}>행운의 숫자</span>
+            </div>
             <div style={{ color:"#fff", fontSize:26, fontWeight:900, lineHeight:1 }}>
               {result.luckyNumber}
             </div>
@@ -529,14 +553,16 @@ Return ONLY valid JSON, no markdown:
       <div style={{ display:"flex", flexDirection:"column", gap:10,
         marginTop:18, width:"100%", maxWidth:360, zIndex:1 }}>
         <button style={btnGlass} onClick={() => setStep("shop")}>
-          🛍️ 이름 굿즈 보기 · Personalized Goods
+          🛍️ Personalized Goods
+          <span style={btnSub}>이름 굿즈 보기</span>
         </button>
         <button style={btnGlass} onClick={() => {
           setPhoto(null); setResult(null);
           setBirth({ year:"", month:"", day:"", hour:"Unknown" });
           setStep("home");
         }}>
-          🔄 다시 분석하기 · Analyze Again
+          🔄 Analyze Again
+          <span style={btnSub}>다시 분석하기</span>
         </button>
       </div>
     </div>
@@ -551,11 +577,12 @@ Return ONLY valid JSON, no markdown:
 
       <div style={{ textAlign:"center", marginBottom:22, animation:"fadeUp 0.5s ease" }}>
         <div style={{
-          fontSize:22, fontWeight:900, letterSpacing:2, marginBottom:4,
+          fontSize:20, fontWeight:900, letterSpacing:1, marginBottom:2,
           background:"linear-gradient(90deg,#6d28d9,#a855f7)",
           WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent",
-        }}>{result?.korean} 맞춤 굿즈</div>
-        <p style={{ fontSize:12, color:"#9ca3af" }}>Your name, forever yours ✦</p>
+        }}>Custom Goods for {result?.korean}</div>
+        <div style={{ fontSize:12, color:"#9ca3af", marginBottom:2 }}>{result?.korean} 맞춤 굿즈</div>
+        <p style={{ fontSize:12, color:"#c4b5fd", margin:0 }}>Your name, forever yours ✦</p>
       </div>
 
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:16 }}>
@@ -573,22 +600,24 @@ Return ONLY valid JSON, no markdown:
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:4 }}>
               <span style={{ fontWeight:800, color:"#7c3aed", fontSize:15 }}>${g.price}</span>
               <button
-                onClick={() => alert("서비스 준비중입니다 🛠️\nComing soon!")}
+                onClick={() => alert("Coming soon! 서비스 준비중입니다 🛠️")}
                 style={{ background:"#7c3aed", color:"#fff", border:"none",
                   borderRadius:8, padding:"5px 11px", fontSize:12, cursor:"pointer", fontWeight:600 }}>
-                담기 Add
+                Add<span style={{ display:"block", fontSize:9, fontWeight:400, opacity:0.7 }}>담기</span>
               </button>
             </div>
           </div>
         ))}
       </div>
 
-      <button style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+      <button style={{ display:"flex", alignItems:"center", justifyContent:"center",
+        flexDirection:"column", gap:2,
         background:"transparent", color:"#7c3aed", border:"2px solid #7c3aed",
-        borderRadius:14, padding:"14px 28px", fontSize:15, fontWeight:600,
+        borderRadius:14, padding:"13px 28px", fontSize:15, fontWeight:600,
         cursor:"pointer", width:"100%", boxSizing:"border-box" }}
         onClick={() => setStep("result")}>
-        ← 결과로 돌아가기 · Back to result
+        ← Back to Result
+        <span style={{ fontSize:11, fontWeight:400, opacity:0.5, marginTop:1 }}>결과로 돌아가기</span>
       </button>
     </div>
   );
