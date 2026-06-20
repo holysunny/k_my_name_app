@@ -65,77 +65,87 @@ function Sparkles() {
   );
 }
 
-/* 인앱 브라우저 감지 */
-function useInAppBrowser() {
-  const ua = navigator.userAgent || "";
-  return /KAKAOTALK|NAVER|Line\/|Instagram|FBAN|FBAV|Snapchat|Twitter\/|WeChat|MicroMessenger|DaumApps|NaverApp/i.test(ua);
-}
+/* 인앱 브라우저 타입 감지 (모듈 레벨 - 한 번만 실행) */
+const _ua = navigator.userAgent || "";
+const IS_IOS = /iPhone|iPad|iPod/i.test(_ua);
+const IAB_TYPE = /KAKAOTALK/i.test(_ua) ? "kakao"
+  : /Instagram/i.test(_ua)              ? "instagram"
+  : /FBAN|FBAV/i.test(_ua)             ? "facebook"
+  : /Line\//i.test(_ua)                ? "line"
+  : /NAVER|NaverApp/i.test(_ua)        ? "naver"
+  : null;
 
-/* 인앱 브라우저 안내 오버레이 */
-function InAppBrowserGuard() {
-  const isIAB = useInAppBrowser();
+/* 버튼 클릭 시 나오는 브라우저 안내 모달 */
+function IABModal({ onClose }) {
   const [copied, setCopied] = useState(false);
-  if (!isIAB) return null;
-
   const url = window.location.href;
+
   const copy = () => {
-    navigator.clipboard?.writeText(url).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    }).catch(() => {
-      // fallback for older browsers
+    const write = () => {
       const el = document.createElement("textarea");
       el.value = url; document.body.appendChild(el);
       el.select(); document.execCommand("copy");
       document.body.removeChild(el);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    });
+    };
+    navigator.clipboard?.writeText(url).catch(write) ?? write();
+    setCopied(true);
+    setTimeout(() => setCopied(false), 3000);
   };
+
+  const hint = IS_IOS
+    ? "Tap  ···  at the bottom → Open in Safari"
+    : "Tap  ⋮  at the top right → Open in browser";
+  const hintKr = IS_IOS
+    ? "하단 ···  탭 → Safari로 열기"
+    : "우측 상단 ⋮  탭 → 브라우저로 열기";
 
   return (
     <div style={{
       position:"fixed", inset:0, zIndex:99999,
-      background:"linear-gradient(145deg,#6d28d9,#7c3aed 50%,#a855f7)",
-      display:"flex", flexDirection:"column",
-      alignItems:"center", justifyContent:"center",
-      padding:"32px 24px", textAlign:"center",
+      display:"flex", alignItems:"center", justifyContent:"center",
+      background:"rgba(0,0,0,0.6)", backdropFilter:"blur(6px)",
+      WebkitBackdropFilter:"blur(6px)", padding:"24px",
     }}>
-      <div style={{ fontSize:56, marginBottom:16 }}>🌐</div>
-      <h2 style={{ color:"#fff", fontSize:20, fontWeight:800, margin:"0 0 8px" }}>
-        Open in Browser
-      </h2>
-      <p style={{ color:"rgba(255,255,255,0.6)", fontSize:13, margin:"0 0 4px" }}>
-        외부 브라우저에서 열어주세요
-      </p>
-      <p style={{ color:"rgba(255,255,255,0.85)", fontSize:14, lineHeight:1.75,
-        margin:"20px 0 6px" }}>
-        This app requires camera &amp; file access,<br/>
-        which isn't available in messenger browsers.
-      </p>
-      <p style={{ color:"rgba(255,255,255,0.5)", fontSize:12, margin:"0 0 28px", lineHeight:1.6 }}>
-        카메라·파일 기능은 메신저 내 브라우저에서<br/>지원되지 않아요.
-      </p>
-
-      <button onClick={copy} style={{
-        background:"#fff", color:"#7c3aed", border:"none",
-        borderRadius:14, padding:"14px 0", fontSize:15,
-        fontWeight:800, cursor:"pointer", width:"100%", maxWidth:300,
-        marginBottom:12, transition:"opacity 0.2s",
+      <div style={{
+        background:"#fff", borderRadius:24, padding:"32px 22px",
+        maxWidth:320, width:"100%", textAlign:"center",
+        boxShadow:"0 24px 64px rgba(0,0,0,0.35)",
+        animation:"fadeUp 0.3s ease",
       }}>
-        {copied ? "✅ Copied!" : "📋 Copy Link · 링크 복사"}
-      </button>
-      {copied && (
-        <p style={{ color:"rgba(255,255,255,0.75)", fontSize:13, margin:0 }}>
-          Paste it in Safari or Chrome ↗<br/>
-          <span style={{ opacity:0.6, fontSize:11 }}>Safari나 Chrome에 붙여넣기 해주세요</span>
+        <div style={{ fontSize:48, marginBottom:12 }}>🌐</div>
+        <h3 style={{ fontSize:18, fontWeight:800, color:"#1a1a1a", margin:"0 0 4px" }}>
+          Open in Browser
+        </h3>
+        <p style={{ fontSize:12, color:"#9ca3af", margin:"0 0 16px" }}>
+          외부 브라우저에서 열어주세요
         </p>
-      )}
+        <p style={{ fontSize:13, color:"#4b5563", lineHeight:1.7, margin:"0 0 6px" }}>
+          Camera &amp; file access isn't available<br/>in messenger browsers.
+        </p>
+        <p style={{ fontSize:11, color:"#9ca3af", margin:"0 0 22px", lineHeight:1.6 }}>
+          메신저 내 브라우저에서는 카메라·파일<br/>기능을 사용할 수 없어요.
+        </p>
 
-      <p style={{ color:"rgba(255,255,255,0.35)", fontSize:11, marginTop:28, lineHeight:1.6 }}>
-        iOS: tap ··· → Open in Safari<br/>
-        Android: tap ⋮ → Open in Chrome
-      </p>
+        <button onClick={copy} style={{
+          background:"#7c3aed", color:"#fff", border:"none",
+          borderRadius:12, padding:"13px 0", fontSize:15,
+          fontWeight:700, cursor:"pointer", width:"100%", marginBottom:10,
+        }}>
+          {copied ? "✅ Copied!" : "📋 Copy Link · 링크 복사"}
+        </button>
+
+        <p style={{ fontSize:12, color:"#6b7280", margin:"0 0 4px", lineHeight:1.6 }}>
+          {hint}
+        </p>
+        <p style={{ fontSize:11, color:"#9ca3af", margin:"0 0 20px" }}>{hintKr}</p>
+
+        <button onClick={onClose} style={{
+          background:"none", border:"none", color:"#9ca3af",
+          fontSize:13, cursor:"pointer", padding:"4px",
+        }}>
+          닫기 · Close
+        </button>
+      </div>
     </div>
   );
 }
@@ -211,9 +221,18 @@ export default function App() {
   const [error,     setError]     = useState(null);
   const [sharing,    setSharing]    = useState(false);
   const [errorModal, setErrorModal] = useState(false);
+  const [iabModal,   setIabModal]   = useState(false);
   const cardRef    = useRef(null);
   const selfieRef  = useRef(null);
   const galleryRef = useRef(null);
+
+  /* 카카오톡: 앱 열리자마자 외부 브라우저로 자동 리다이렉트 */
+  useEffect(() => {
+    if (IAB_TYPE === "kakao") {
+      window.location.href =
+        "kakaotalk://web/openExternal?url=" + encodeURIComponent(window.location.href);
+    }
+  }, []);
 
   useEffect(() => {
     if (step !== "analyzing") return;
@@ -388,7 +407,6 @@ Return ONLY valid JSON, no markdown:
   /* ════════════════════════════════ HOME ══════════════════════════════ */
   if (step === "home") return (
     <div style={pageBg}>
-      <InAppBrowserGuard />
       <style>{CSS}</style>
       <Sparkles />
 
@@ -437,12 +455,18 @@ Return ONLY valid JSON, no markdown:
           <span style={{ fontSize:11, color:"#9ca3af" }}>AI analyzes your face &amp; Saju to craft your name</span>
         </p>
 
-        {/* Hidden inputs — triggered by buttons via ref */}
+        {/* Hidden inputs */}
         <input ref={selfieRef}  type="file" accept="image/*" capture="user" onChange={handlePhoto} style={{ display:"none" }} />
         <input ref={galleryRef} type="file" accept="image/*"               onChange={handlePhoto} style={{ display:"none" }} />
 
+        {/* IAB 모달 */}
+        {iabModal && <IABModal onClose={() => setIabModal(false)} />}
+
         {/* Selfie — front camera */}
-        <button style={{ ...btn, marginBottom:10 }} onClick={() => selfieRef.current?.click()}>
+        <button style={{ ...btn, marginBottom:10 }} onClick={() => {
+          if (IAB_TYPE) { setIabModal(true); return; }
+          selfieRef.current?.click();
+        }}>
           🤳 Take Selfie
           <span style={btnSub}>셀피 찍기</span>
         </button>
@@ -455,7 +479,10 @@ Return ONLY valid JSON, no markdown:
           border:"2px solid #7c3aed", borderRadius:14, padding:"13px 28px",
           fontSize:15, fontWeight:600, cursor:"pointer",
           width:"100%", boxSizing:"border-box",
-        }} onClick={() => galleryRef.current?.click()}>
+        }} onClick={() => {
+          if (IAB_TYPE) { setIabModal(true); return; }
+          galleryRef.current?.click();
+        }}>
           📁 Choose from Gallery
           <span style={{ fontSize:11, fontWeight:400, opacity:0.5, marginTop:1 }}>갤러리에서 선택</span>
         </button>
