@@ -49,6 +49,11 @@ const CSS = `
     0%,100% { transform:scale(1);    }
     50%     { transform:scale(1.08); }
   }
+  img.emoji {
+    height: 1em; width: 1em;
+    vertical-align: -0.1em;
+    display: inline-block;
+  }
 `;
 
 function Sparkles() {
@@ -59,7 +64,7 @@ function Sparkles() {
           position:"absolute", color:"rgba(255,255,255,0.75)", fontSize:p.size,
           animation:`sparkle ${1.8 + i*0.25}s ${p.delay}s ease-in-out infinite`,
           pointerEvents:"none", userSelect:"none", ...p,
-        }}>✦</span>
+        }}>✦︎</span>
       ))}
     </>
   );
@@ -233,6 +238,16 @@ export default function App() {
         "kakaotalk://web/openExternal?url=" + encodeURIComponent(window.location.href);
     }
   }, []);
+
+  /* Twemoji: 모든 이모지를 플랫폼 무관하게 동일하게 렌더링 */
+  useEffect(() => {
+    if (window.twemoji) {
+      window.twemoji.parse(document.body, {
+        folder: "svg",
+        ext: ".svg",
+      });
+    }
+  }, [step]);
 
   useEffect(() => {
     if (step !== "analyzing") return;
@@ -414,7 +429,7 @@ Return ONLY valid JSON, no markdown:
         <div style={{ fontSize:40, marginBottom:6 }}>✨</div>
         <h1 style={{ fontSize:30, fontWeight:900, margin:"0 0 18px", letterSpacing:3 }}>K-MY NAME</h1>
 
-        <div style={{ opacity:0.35, fontSize:16, margin:"0 0 8px" }}>✦</div>
+        <div style={{ opacity:0.35, fontSize:16, margin:"0 0 8px" }}>✦︎</div>
         <p style={{ fontSize:22, fontWeight:900, margin:"0 0 2px", lineHeight:1.25,
           textShadow:"0 2px 16px rgba(0,0,0,0.25)", whiteSpace:"nowrap" }}>
           What's your Korean name?
@@ -422,7 +437,7 @@ Return ONLY valid JSON, no markdown:
         <p style={{ fontSize:12, opacity:0.45, margin:"0 0 8px", fontWeight:500 }}>
           당신의 한국 이름은?
         </p>
-        <div style={{ opacity:0.35, fontSize:16, margin:"0 0 16px" }}>✦</div>
+        <div style={{ opacity:0.35, fontSize:16, margin:"0 0 16px" }}>✦︎</div>
 
         <p style={{ fontSize:14, fontWeight:500, opacity:0.75, margin:"0 0 2px", lineHeight:1.5, fontStyle:"italic" }}>
           You were born with a Korean name.
@@ -517,7 +532,7 @@ Return ONLY valid JSON, no markdown:
           WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent",
         }}>K-MY NAME</div>
         <p style={{ fontSize:12, color:"#7c3aed", marginTop:4, fontWeight:600 }}>
-          ✦ Enter your birth date
+          ✦︎ Enter your birth date
         </p>
         <p style={{ fontSize:11, color:"#9ca3af", margin:"2px 0 0" }}>생년월일을 입력해주세요</p>
       </div>
@@ -679,7 +694,7 @@ Return ONLY valid JSON, no markdown:
               borderRadius:20, padding:"4px 11px",
               color:"#fff", fontSize:11, fontWeight:600, width:"fit-content",
             }}>
-              ✦ {result.element} · {result.elementKr}
+              ✦︎ {result.element} · {result.elementKr}
             </div>
           </div>
         </div>
@@ -759,7 +774,7 @@ Return ONLY valid JSON, no markdown:
         </div>
         <div style={{ textAlign:"center", padding:"8px 0 14px",
           color:"rgba(255,255,255,0.35)", fontSize:10, letterSpacing:4 }}>
-          ✦ K-MY NAME ✦
+          ✦︎ K-MY NAME ✦︎
         </div>
       </div>
 
@@ -801,7 +816,7 @@ Return ONLY valid JSON, no markdown:
           WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent",
         }}>Custom Goods for {result?.korean}</div>
         <div style={{ fontSize:12, color:"#9ca3af", marginBottom:2 }}>{result?.korean} 맞춤 굿즈</div>
-        <p style={{ fontSize:12, color:"#c4b5fd", margin:0 }}>Your name, forever yours ✦</p>
+        <p style={{ fontSize:12, color:"#c4b5fd", margin:0 }}>Your name, forever yours ✦︎</p>
       </div>
 
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:16 }}>
