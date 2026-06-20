@@ -318,7 +318,6 @@ Return ONLY valid JSON, no markdown:
         <div style={{ fontSize:40, marginBottom:6 }}>✨</div>
         <h1 style={{ fontSize:30, fontWeight:900, margin:"0 0 18px", letterSpacing:3 }}>K-MY NAME</h1>
 
-        <div style={{ opacity:0.35, fontSize:16, margin:"0 0 8px" }}>✦</div>
         <p style={{ fontSize:22, fontWeight:900, margin:"0 0 2px", lineHeight:1.25,
           textShadow:"0 2px 16px rgba(0,0,0,0.25)", whiteSpace:"nowrap" }}>
           What's your Korean name?
