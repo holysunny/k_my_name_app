@@ -136,7 +136,9 @@ export default function App() {
   const [error,     setError]     = useState(null);
   const [sharing,    setSharing]    = useState(false);
   const [errorModal, setErrorModal] = useState(false);
-  const cardRef = useRef(null);
+  const cardRef    = useRef(null);
+  const selfieRef  = useRef(null);
+  const galleryRef = useRef(null);
 
   useEffect(() => {
     if (step !== "analyzing") return;
@@ -359,26 +361,28 @@ Return ONLY valid JSON, no markdown:
           <span style={{ fontSize:11, color:"#9ca3af" }}>AI analyzes your face &amp; Saju to craft your name</span>
         </p>
 
+        {/* Hidden inputs — triggered by buttons via ref */}
+        <input ref={selfieRef}  type="file" accept="image/*" capture="user" onChange={handlePhoto} style={{ display:"none" }} />
+        <input ref={galleryRef} type="file" accept="image/*"               onChange={handlePhoto} style={{ display:"none" }} />
+
         {/* Selfie — front camera */}
-        <label style={{ ...btn, cursor:"pointer", marginBottom:10 }}>
+        <button style={{ ...btn, marginBottom:10 }} onClick={() => selfieRef.current?.click()}>
           🤳 Take Selfie
           <span style={btnSub}>셀피 찍기</span>
-          <input type="file" accept="image/*" capture="user" onChange={handlePhoto} style={{ display:"none" }} />
-        </label>
+        </button>
 
         {/* Gallery */}
-        <label style={{
+        <button style={{
           display:"flex", alignItems:"center", justifyContent:"center",
           flexDirection:"column", gap:2,
           background:"transparent", color:"#7c3aed",
           border:"2px solid #7c3aed", borderRadius:14, padding:"13px 28px",
           fontSize:15, fontWeight:600, cursor:"pointer",
           width:"100%", boxSizing:"border-box",
-        }}>
+        }} onClick={() => galleryRef.current?.click()}>
           📁 Choose from Gallery
           <span style={{ fontSize:11, fontWeight:400, opacity:0.5, marginTop:1 }}>갤러리에서 선택</span>
-          <input type="file" accept="image/*" onChange={handlePhoto} style={{ display:"none" }} />
-        </label>
+        </button>
 
         <div style={{ marginTop:14, textAlign:"center", borderTop:"1px solid #f0f0f0", paddingTop:12 }}>
           <p style={{ fontSize:11, color:"#9ca3af", margin:"0 0 3px" }}>
@@ -432,12 +436,14 @@ Return ONLY valid JSON, no markdown:
             boxShadow:"0 4px 20px rgba(124,58,237,0.3)",
           }} />
           <div>
-            <label style={{ display:"inline-flex", flexDirection:"column", alignItems:"center",
-              gap:2, marginTop:10, cursor:"pointer", color:"#7c3aed", fontSize:13, fontWeight:600 }}>
+            <input ref={galleryRef} type="file" accept="image/*" onChange={handlePhoto} style={{ display:"none" }} />
+            <button style={{ display:"inline-flex", flexDirection:"column", alignItems:"center",
+              gap:2, marginTop:10, cursor:"pointer", color:"#7c3aed", fontSize:13, fontWeight:600,
+              background:"none", border:"none" }}
+              onClick={() => galleryRef.current?.click()}>
               📸 Change Photo
               <span style={{ fontSize:10, opacity:0.5, fontWeight:400 }}>사진 변경</span>
-              <input type="file" accept="image/*" onChange={handlePhoto} style={{ display:"none" }} />
-            </label>
+            </button>
           </div>
         </div>
       )}
