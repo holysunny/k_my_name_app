@@ -214,10 +214,38 @@ Return ONLY valid JSON, no markdown:
       <Sparkles />
 
       <div style={{ textAlign:"center", color:"#fff", marginBottom:28, zIndex:1, animation:"fadeUp 0.7s ease" }}>
-        <div style={{ fontSize:48, marginBottom:6 }}>✨</div>
-        <h1 style={{ fontSize:36, fontWeight:900, margin:"0 0 8px", letterSpacing:3 }}>K-MY NAME</h1>
-        <p style={{ fontSize:20, fontWeight:700, opacity:0.95, margin:"0 0 4px" }}>당신의 한국 이름은?</p>
-        <p style={{ fontSize:14, opacity:0.75, margin:0 }}>What's your Korean name?</p>
+        <div style={{ fontSize:40, marginBottom:6 }}>✨</div>
+        <h1 style={{ fontSize:30, fontWeight:900, margin:"0 0 18px", letterSpacing:3 }}>K-MY NAME</h1>
+
+        {/* Hook copy */}
+        <p style={{ fontSize:26, fontWeight:900, margin:"0 0 2px", lineHeight:1.25,
+          textShadow:"0 2px 16px rgba(0,0,0,0.25)" }}>
+          What's your<br/>Korean name?
+        </p>
+        <p style={{ fontSize:12, opacity:0.45, margin:"0 0 16px", fontWeight:500 }}>
+          당신의 한국 이름은?
+        </p>
+
+        <p style={{ fontSize:15, fontWeight:600, opacity:0.9, margin:"0 0 2px", lineHeight:1.5 }}>
+          You were born with a Korean name.
+        </p>
+        <p style={{ fontSize:11, opacity:0.45, margin:"0 0 10px", fontWeight:400 }}>
+          당신은 한국 이름을 가지고 태어났어요.
+        </p>
+
+        <p style={{ fontSize:14, fontWeight:500, opacity:0.75, margin:"0 0 2px", lineHeight:1.5, fontStyle:"italic" }}>
+          You just didn't know it yet.
+        </p>
+        <p style={{ fontSize:11, opacity:0.4, margin:"0 0 16px", fontWeight:400, fontStyle:"italic" }}>
+          단지 몰랐을 뿐이에요.
+        </p>
+
+        <p style={{ fontSize:12, opacity:0.6, letterSpacing:2, fontWeight:700, margin:0 }}>
+          — Discover it now ↓
+        </p>
+        <p style={{ fontSize:10, opacity:0.35, letterSpacing:1, fontWeight:500, margin:"2px 0 0" }}>
+          지금 알아보세요
+        </p>
       </div>
 
       <div style={{
@@ -226,11 +254,10 @@ Return ONLY valid JSON, no markdown:
         boxShadow:"0 20px 60px rgba(0,0,0,0.25)",
         zIndex:1, animation:"fadeUp 0.8s ease",
       }}>
-        <p style={{ fontSize:13, color:"#6b7280", lineHeight:1.8, marginBottom:20, textAlign:"center" }}>
-          셀피를 찍고 생년월일을 입력하면 AI가 얼굴과 사주를<br/>
-          분석해 당신만의 한국 이름을 지어드려요.<br/>
-          <span style={{ fontSize:11, color:"#9ca3af" }}>
-            Take a selfie &amp; enter your birth date —<br/>AI crafts your perfect Korean name.
+        <p style={{ fontSize:13, color:"#6b7280", lineHeight:1.7, marginBottom:20, textAlign:"center" }}>
+          🤳 Selfie + 📅 Birth date<br/>
+          <span style={{ fontSize:12, color:"#9ca3af" }}>
+            AI analyzes your face &amp; Saju to craft your name
           </span>
         </p>
 
