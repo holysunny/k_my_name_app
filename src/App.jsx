@@ -213,33 +213,53 @@ Return ONLY valid JSON, no markdown:
       <style>{CSS}</style>
       <Sparkles />
 
-      <div style={{ textAlign:"center", color:"#fff", marginBottom:36, zIndex:1, animation:"fadeUp 0.7s ease" }}>
-        <div style={{ fontSize:52, marginBottom:6 }}>✨</div>
-        <h1 style={{ fontSize:38, fontWeight:900, margin:"0 0 6px", letterSpacing:3 }}>
-          K-MY NAME
-        </h1>
-        <p style={{ fontSize:13, opacity:0.8, letterSpacing:1 }}>✦ Korean Name &amp; Saju Analysis ✦</p>
-        <p style={{ fontSize:13, opacity:0.6, marginTop:6 }}>AI로 나만의 한국 이름을 찾아보세요</p>
+      <div style={{ textAlign:"center", color:"#fff", marginBottom:28, zIndex:1, animation:"fadeUp 0.7s ease" }}>
+        <div style={{ fontSize:48, marginBottom:6 }}>✨</div>
+        <h1 style={{ fontSize:36, fontWeight:900, margin:"0 0 8px", letterSpacing:3 }}>K-MY NAME</h1>
+        <p style={{ fontSize:20, fontWeight:700, opacity:0.95, margin:"0 0 4px" }}>당신의 한국 이름은?</p>
+        <p style={{ fontSize:14, opacity:0.75, margin:0 }}>What's your Korean name?</p>
       </div>
 
       <div style={{
-        background:"rgba(255,255,255,0.97)", borderRadius:22, padding:"28px 24px",
+        background:"rgba(255,255,255,0.97)", borderRadius:22, padding:"24px 20px",
         width:"100%", maxWidth:360,
         boxShadow:"0 20px 60px rgba(0,0,0,0.25)",
         zIndex:1, animation:"fadeUp 0.8s ease",
       }}>
-        <p style={{ fontSize:14, color:"#6b7280", lineHeight:1.75, marginBottom:22, textAlign:"center" }}>
-          사진을 업로드하면 AI가 얼굴과 사주를 분석해<br/>
-          당신만의 한국 이름을 지어드립니다 🔮<br/>
-          <span style={{ fontSize:12, color:"#9ca3af" }}>Upload a photo · Discover your Korean name</span>
+        <p style={{ fontSize:13, color:"#6b7280", lineHeight:1.8, marginBottom:20, textAlign:"center" }}>
+          셀피를 찍고 생년월일을 입력하면 AI가 얼굴과 사주를<br/>
+          분석해 당신만의 한국 이름을 지어드려요.<br/>
+          <span style={{ fontSize:11, color:"#9ca3af" }}>
+            Take a selfie &amp; enter your birth date —<br/>AI crafts your perfect Korean name.
+          </span>
         </p>
-        <label style={{ ...btn, cursor:"pointer" }}>
-          📸 사진 업로드 · Upload Photo
+
+        {/* Selfie button — front camera */}
+        <label style={{ ...btn, cursor:"pointer", marginBottom:10 }}>
+          🤳 셀피 찍기 · Take Selfie
+          <input type="file" accept="image/*" capture="user" onChange={handlePhoto} style={{ display:"none" }} />
+        </label>
+
+        {/* Gallery upload button */}
+        <label style={{
+          display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+          background:"transparent", color:"#7c3aed",
+          border:"2px solid #7c3aed", borderRadius:14, padding:"13px 28px",
+          fontSize:15, fontWeight:600, cursor:"pointer",
+          width:"100%", boxSizing:"border-box",
+        }}>
+          📁 갤러리에서 선택 · Choose from Gallery
           <input type="file" accept="image/*" onChange={handlePhoto} style={{ display:"none" }} />
         </label>
-        <p style={{ fontSize:11, color:"#9ca3af", marginTop:12, textAlign:"center" }}>
-          사진은 저장되거나 공유되지 않습니다 · Photos are not stored
-        </p>
+
+        <div style={{ marginTop:14, textAlign:"center", borderTop:"1px solid #f0f0f0", paddingTop:12 }}>
+          <p style={{ fontSize:11, color:"#9ca3af", margin:"0 0 4px" }}>
+            🔒 사진은 저장되지 않습니다 · Photos are not stored
+          </p>
+          <p style={{ fontSize:11, color:"#9ca3af", margin:0 }}>
+            오락 목적으로 제공됩니다 · For entertainment purposes only ✨
+          </p>
+        </div>
       </div>
     </div>
   );
