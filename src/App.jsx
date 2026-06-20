@@ -328,10 +328,10 @@ Return ONLY valid JSON, no markdown:
         </p>
         <div style={{ opacity:0.35, fontSize:16, margin:"0 0 16px" }}>✦</div>
 
-        <p style={{ fontSize:15, fontWeight:600, opacity:0.9, margin:"0 0 2px", lineHeight:1.5 }}>
+        <p style={{ fontSize:14, fontWeight:500, opacity:0.75, margin:"0 0 2px", lineHeight:1.5, fontStyle:"italic" }}>
           You were born with a Korean name.
         </p>
-        <p style={{ fontSize:11, opacity:0.45, margin:"0 0 10px", fontWeight:400 }}>
+        <p style={{ fontSize:11, opacity:0.4, margin:"0 0 10px", fontWeight:400, fontStyle:"italic" }}>
           당신은 한국 이름을 가지고 태어났어요.
         </p>
 
@@ -342,8 +342,9 @@ Return ONLY valid JSON, no markdown:
           단지 몰랐을 뿐이에요.
         </p>
 
-        <p style={{ fontSize:12, opacity:0.6, letterSpacing:2, fontWeight:700, margin:0 }}>— Discover it now ↓</p>
-        <p style={{ fontSize:10, opacity:0.35, letterSpacing:1, fontWeight:500, margin:"2px 0 0" }}>지금 알아보세요</p>
+        <p style={{ fontSize:20, fontWeight:900, margin:"0 0 2px", letterSpacing:1,
+          textShadow:"0 2px 16px rgba(0,0,0,0.25)" }}>— Discover it now ↓</p>
+        <p style={{ fontSize:11, opacity:0.45, letterSpacing:1, fontWeight:500, margin:"2px 0 0" }}>지금 알아보세요</p>
       </div>
 
       <div style={{
