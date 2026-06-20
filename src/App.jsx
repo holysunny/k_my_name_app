@@ -65,6 +65,50 @@ function Sparkles() {
   );
 }
 
+/* 서버 오류 모달 */
+function ErrorModal({ onClose }) {
+  return (
+    <div style={{
+      position:"fixed", inset:0, zIndex:9999,
+      display:"flex", alignItems:"center", justifyContent:"center",
+      background:"rgba(0,0,0,0.55)", backdropFilter:"blur(6px)",
+      WebkitBackdropFilter:"blur(6px)", padding:"20px",
+    }}>
+      <div style={{
+        background:"#fff", borderRadius:24, padding:"32px 24px",
+        maxWidth:320, width:"100%", textAlign:"center",
+        boxShadow:"0 24px 64px rgba(0,0,0,0.3)",
+        animation:"fadeUp 0.3s ease",
+      }}>
+        <div style={{ fontSize:52, marginBottom:12 }}>😓</div>
+        <h3 style={{ fontSize:18, fontWeight:800, color:"#1a1a1a", margin:"0 0 4px" }}>
+          Our servers are a bit busy
+        </h3>
+        <p style={{ fontSize:12, color:"#9ca3af", margin:"0 0 16px" }}>
+          서버가 잠시 바쁩니다
+        </p>
+        <p style={{ fontSize:14, color:"#4b5563", lineHeight:1.75, margin:"0 0 8px" }}>
+          Please try again in a moment.<br/>
+          Sorry for the inconvenience! 🙏
+        </p>
+        <p style={{ fontSize:12, color:"#9ca3af", margin:"0 0 24px", lineHeight:1.6 }}>
+          잠시 후 다시 시도해주세요.<br/>불편을 드려 진심으로 죄송합니다.
+        </p>
+        <button onClick={onClose} style={{
+          background:"#7c3aed", color:"#fff", border:"none",
+          borderRadius:12, padding:"13px 0", fontSize:15,
+          fontWeight:700, cursor:"pointer", width:"100%",
+        }}>
+          Try Again
+          <span style={{ display:"block", fontSize:11, fontWeight:400, opacity:0.75, marginTop:2 }}>
+            다시 시도하기
+          </span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* EN 메인 / KR 보조 텍스트 컴포넌트 */
 function BiLabel({ en, kr, enStyle={}, krStyle={} }) {
   return (
@@ -90,7 +134,8 @@ export default function App() {
   const [analyzing, setAnalyzing] = useState(0);
   const [dotIdx,    setDotIdx]    = useState(0);
   const [error,     setError]     = useState(null);
-  const [sharing,   setSharing]   = useState(false);
+  const [sharing,    setSharing]    = useState(false);
+  const [errorModal, setErrorModal] = useState(false);
   const cardRef = useRef(null);
 
   useEffect(() => {
@@ -152,6 +197,9 @@ Return ONLY valid JSON, no markdown:
   "lackingElement":"금","lackingElementEn":"Metal"
 }`;
 
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
+
       const res = await fetch(
         "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
         {
@@ -164,8 +212,10 @@ Return ONLY valid JSON, no markdown:
             ]}],
             generationConfig:{ temperature:0.85, responseMimeType:"application/json" },
           }),
+          signal: controller.signal,
         }
       );
+      clearTimeout(timeout);
 
       const data = await res.json();
       if (data.error) throw new Error(data.error.message || "API error");
@@ -184,7 +234,7 @@ Return ONLY valid JSON, no markdown:
       setStep("result");
     } catch (err) {
       console.error(err);
-      setError(err.message);
+      setErrorModal(true);
       setStep("upload");
     }
   };
@@ -344,6 +394,8 @@ Return ONLY valid JSON, no markdown:
 
   /* ════════════════════════════════ UPLOAD ════════════════════════════ */
   if (step === "upload") return (
+    <>
+    {errorModal && <ErrorModal onClose={() => setErrorModal(false)} />}
     <div style={{ maxWidth:480, margin:"0 auto", minHeight:"100vh",
       background:"linear-gradient(160deg,#f5f0ff 0%,#ede9ff 100%)",
       padding:"28px 16px", boxSizing:"border-box" }}>
@@ -428,10 +480,12 @@ Return ONLY valid JSON, no markdown:
         </button>
       </div>
     </div>
+    </>
   );
 
   /* ════════════════════════════════ ANALYZING ═════════════════════════ */
   if (step === "analyzing") {
+    if (errorModal) return <ErrorModal onClose={() => { setErrorModal(false); setStep("upload"); }} />;
     const cur = STEPS[analyzing % STEPS.length];
     return (
       <div style={pageBg}>
