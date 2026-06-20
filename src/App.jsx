@@ -56,7 +56,7 @@ function Sparkles() {
     <>
       {SPARKLE_POS.map((p, i) => (
         <span key={i} style={{
-          position:"absolute", color:"rgba(109,40,217,0.28)", fontSize:p.size,
+          position:"absolute", color:"rgba(255,255,255,0.75)", fontSize:p.size,
           animation:`sparkle ${1.8 + i*0.25}s ${p.delay}s ease-in-out infinite`,
           pointerEvents:"none", userSelect:"none", ...p,
         }}>✦</span>
@@ -65,9 +65,9 @@ function Sparkles() {
   );
 }
 
-/* Light lavender-blue gradient (matches reference image) */
+/* Dark purple gradient (original) */
 const pageBg = {
-  background:"linear-gradient(145deg, #ede9fe 0%, #ddd6fe 28%, #e0e7ff 62%, #f3e0ff 100%)",
+  background:"linear-gradient(145deg, #6d28d9 0%, #7c3aed 30%, #a855f7 65%, #8b5cf6 100%)",
   minHeight:"100vh", display:"flex", flexDirection:"column",
   alignItems:"center", justifyContent:"center",
   position:"relative", overflow:"hidden", padding:"24px 16px",
@@ -193,9 +193,9 @@ Return ONLY valid JSON, no markdown:
   };
   const btnGlass = {
     ...btn,
-    background:"rgba(124,58,237,0.1)",
-    backdropFilter:"blur(8px)", WebkitBackdropFilter:"blur(8px)",
-    border:"1.5px solid rgba(109,40,217,0.28)", color:"#4c1d95",
+    background:"rgba(255,255,255,0.18)",
+    backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)",
+    border:"1px solid rgba(255,255,255,0.32)", color:"#fff",
   };
   const inputStyle = {
     width:"100%", boxSizing:"border-box", padding:"10px 12px",
@@ -213,21 +213,20 @@ Return ONLY valid JSON, no markdown:
       <style>{CSS}</style>
       <Sparkles />
 
-      <div style={{ textAlign:"center", marginBottom:36, zIndex:1, animation:"fadeUp 0.7s ease" }}>
+      <div style={{ textAlign:"center", color:"#fff", marginBottom:36, zIndex:1, animation:"fadeUp 0.7s ease" }}>
         <div style={{ fontSize:52, marginBottom:6 }}>✨</div>
-        <h1 style={{ fontSize:38, fontWeight:900, margin:"0 0 6px", letterSpacing:3, color:"#4c1d95" }}>
+        <h1 style={{ fontSize:38, fontWeight:900, margin:"0 0 6px", letterSpacing:3 }}>
           K-MY NAME
         </h1>
-        <p style={{ fontSize:13, color:"#6d28d9", letterSpacing:1 }}>✦ Korean Name &amp; Saju Analysis ✦</p>
-        <p style={{ fontSize:13, color:"#7c3aed", opacity:0.7, marginTop:6 }}>AI로 나만의 한국 이름을 찾아보세요</p>
+        <p style={{ fontSize:13, opacity:0.8, letterSpacing:1 }}>✦ Korean Name &amp; Saju Analysis ✦</p>
+        <p style={{ fontSize:13, opacity:0.6, marginTop:6 }}>AI로 나만의 한국 이름을 찾아보세요</p>
       </div>
 
       <div style={{
-        background:"rgba(255,255,255,0.9)", borderRadius:22, padding:"28px 24px",
+        background:"rgba(255,255,255,0.97)", borderRadius:22, padding:"28px 24px",
         width:"100%", maxWidth:360,
-        boxShadow:"0 20px 60px rgba(109,40,217,0.18)",
+        boxShadow:"0 20px 60px rgba(0,0,0,0.25)",
         zIndex:1, animation:"fadeUp 0.8s ease",
-        border:"1.5px solid rgba(139,92,246,0.18)",
       }}>
         <p style={{ fontSize:14, color:"#6b7280", lineHeight:1.75, marginBottom:22, textAlign:"center" }}>
           사진을 업로드하면 AI가 얼굴과 사주를 분석해<br/>
@@ -336,13 +335,13 @@ Return ONLY valid JSON, no markdown:
         <div style={{ textAlign:"center", zIndex:1 }}>
           <div style={{ fontSize:64, marginBottom:20, display:"inline-block",
             animation:"pulse 1.4s ease-in-out infinite" }}>{cur.emoji}</div>
-          <h2 style={{ fontSize:22, fontWeight:700, margin:"0 0 6px", color:"#4c1d95" }}>{cur.kr}</h2>
-          <p style={{ fontSize:14, color:"#7c3aed", opacity:0.8 }}>{cur.en}</p>
+          <h2 style={{ fontSize:22, fontWeight:700, margin:"0 0 6px", color:"#fff" }}>{cur.kr}</h2>
+          <p style={{ fontSize:14, color:"#fff", opacity:0.7 }}>{cur.en}</p>
           <div style={{ display:"flex", gap:8, justifyContent:"center", marginTop:24 }}>
             {[0,1,2,3,4].map(i => (
               <div key={i} style={{
                 width:8, height:8, borderRadius:"50%",
-                background: i === dotIdx ? "#7c3aed" : "rgba(124,58,237,0.2)",
+                background: i === dotIdx ? "#fff" : "rgba(255,255,255,0.3)",
                 transition:"background 0.3s",
               }}/>
             ))}
@@ -358,19 +357,19 @@ Return ONLY valid JSON, no markdown:
       <style>{CSS}</style>
       <Sparkles />
 
-      {/* Name Card — white glass on light bg */}
+      {/* Name Card — dark glass on dark bg */}
       <div style={{
-        background:"rgba(255,255,255,0.88)",
+        background:"rgba(255,255,255,0.13)",
         backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)",
-        border:"1.5px solid rgba(139,92,246,0.22)",
+        border:"1.5px solid rgba(255,255,255,0.28)",
         borderRadius:28, width:"100%", maxWidth:360,
         overflow:"hidden", zIndex:1,
         animation:"fadeUp 0.7s ease",
-        boxShadow:"0 24px 64px rgba(109,40,217,0.22)",
+        boxShadow:"0 24px 64px rgba(0,0,0,0.35)",
       }}>
         {/* Header */}
         <div style={{ textAlign:"center", padding:"13px 0 6px",
-          color:"#7c3aed", fontSize:10, letterSpacing:4, fontWeight:700 }}>
+          color:"rgba(255,255,255,0.65)", fontSize:10, letterSpacing:4, fontWeight:700 }}>
           YOUR KOREAN NAME
         </div>
 
@@ -388,19 +387,19 @@ Return ONLY valid JSON, no markdown:
             )}
           </div>
 
-          {/* Name – right, dark text */}
+          {/* Name – right, white text */}
           <div style={{ flex:1, padding:"20px 16px 16px 8px",
             display:"flex", flexDirection:"column", justifyContent:"center", gap:10 }}>
-            <div style={{ fontSize:54, fontWeight:900, color:"#1e1b4b",
-              lineHeight:1, letterSpacing:-1 }}>{result.korean}</div>
-            <div style={{ fontSize:12, color:"#6d28d9", letterSpacing:4, fontWeight:700 }}>
+            <div style={{ fontSize:54, fontWeight:900, color:"#fff",
+              lineHeight:1, letterSpacing:-1, textShadow:"0 2px 12px rgba(0,0,0,0.4)" }}>{result.korean}</div>
+            <div style={{ fontSize:12, color:"rgba(255,255,255,0.75)", letterSpacing:4, fontWeight:700 }}>
               {result.romanization}
             </div>
             <div style={{
               display:"inline-flex", alignItems:"center", gap:5,
-              background:"rgba(139,92,246,0.12)", border:"1px solid rgba(109,40,217,0.3)",
+              background:"rgba(168,85,247,0.35)", border:"1px solid rgba(255,255,255,0.4)",
               borderRadius:20, padding:"4px 11px",
-              color:"#6d28d9", fontSize:11, fontWeight:600, width:"fit-content",
+              color:"#fff", fontSize:11, fontWeight:600, width:"fit-content",
             }}>
               ✦ {result.element} · {result.elementKr}
             </div>
@@ -409,35 +408,35 @@ Return ONLY valid JSON, no markdown:
 
         {/* Personality quote */}
         <div style={{ padding:"14px 20px 10px", textAlign:"center",
-          background:"rgba(139,92,246,0.06)" }}>
-          <div style={{ color:"#a78bfa", fontSize:30, lineHeight:0.6, marginBottom:8 }}>"</div>
-          <p style={{ color:"#374151", fontSize:13, lineHeight:1.75, margin:"0 0 7px" }}>
+          background:"rgba(0,0,0,0.08)" }}>
+          <div style={{ color:"#fbbf24", fontSize:30, lineHeight:0.6, marginBottom:8 }}>"</div>
+          <p style={{ color:"#fff", fontSize:13, lineHeight:1.75, margin:"0 0 7px" }}>
             {result.personality}
           </p>
           {result.personalityEn && (
-            <p style={{ color:"#6b7280", fontSize:12, lineHeight:1.6, margin:0, fontStyle:"italic" }}>
+            <p style={{ color:"rgba(255,255,255,0.65)", fontSize:12, lineHeight:1.6, margin:0, fontStyle:"italic" }}>
               {result.personalityEn}
             </p>
           )}
-          <div style={{ color:"#a78bfa", fontSize:30, lineHeight:0.6, marginTop:8 }}>"</div>
+          <div style={{ color:"#fbbf24", fontSize:30, lineHeight:0.6, marginTop:8 }}>"</div>
         </div>
 
         {/* Traits */}
         <div style={{ padding:"14px 16px" }}>
-          <div style={{ textAlign:"center", fontSize:9, color:"#9ca3af",
+          <div style={{ textAlign:"center", fontSize:9, color:"rgba(255,255,255,0.45)",
             letterSpacing:4, fontWeight:700, marginBottom:12 }}>TRAITS · 성격</div>
           <div style={{ display:"flex", justifyContent:"space-around" }}>
             {(result.traits||[]).map((t,i) => (
               <div key={i} style={{ textAlign:"center" }}>
                 <div style={{
                   width:48, height:48, borderRadius:"50%",
-                  background:"rgba(139,92,246,0.1)",
-                  border:"1.5px solid rgba(109,40,217,0.22)",
+                  background:"rgba(255,255,255,0.14)",
+                  border:"1.5px solid rgba(255,255,255,0.3)",
                   display:"flex", alignItems:"center", justifyContent:"center",
                   fontSize:22, margin:"0 auto 6px",
                 }}>{t.emoji}</div>
-                <div style={{ color:"#1e1b4b", fontSize:11, fontWeight:700 }}>{t.en}</div>
-                <div style={{ color:"#6b7280", fontSize:10, marginTop:1 }}>{t.kr}</div>
+                <div style={{ color:"#fff", fontSize:11, fontWeight:700 }}>{t.en}</div>
+                <div style={{ color:"rgba(255,255,255,0.55)", fontSize:10, marginTop:1 }}>{t.kr}</div>
               </div>
             ))}
           </div>
@@ -445,24 +444,24 @@ Return ONLY valid JSON, no markdown:
 
         {/* Lucky Color + Number */}
         <div style={{ display:"flex", gap:8, padding:"10px 14px",
-          background:"rgba(139,92,246,0.06)" }}>
-          <div style={{ flex:1, background:"rgba(255,255,255,0.85)", borderRadius:12,
-            padding:"10px 12px", border:"1px solid rgba(139,92,246,0.15)" }}>
-            <div style={{ fontSize:9, color:"#9ca3af", letterSpacing:2,
+          background:"rgba(0,0,0,0.12)" }}>
+          <div style={{ flex:1, background:"rgba(255,255,255,0.1)", borderRadius:12,
+            padding:"10px 12px" }}>
+            <div style={{ fontSize:9, color:"rgba(255,255,255,0.45)", letterSpacing:2,
               fontWeight:700, marginBottom:5 }}>LUCKY COLOR · 행운의 색</div>
             <div style={{ display:"flex", alignItems:"center", gap:7 }}>
               <div style={{ width:14, height:14, borderRadius:"50%",
                 background:result.luckyColorHex||"#c084fc",
-                border:"1.5px solid rgba(0,0,0,0.12)", flexShrink:0 }}/>
-              <span style={{ color:"#1e1b4b", fontSize:13, fontWeight:700 }}>{result.luckyColor}</span>
-              <span style={{ color:"#9ca3af", fontSize:11 }}>{result.luckyColorKr}</span>
+                border:"1.5px solid rgba(255,255,255,0.6)", flexShrink:0 }}/>
+              <span style={{ color:"#fff", fontSize:13, fontWeight:700 }}>{result.luckyColor}</span>
+              <span style={{ color:"rgba(255,255,255,0.55)", fontSize:11 }}>{result.luckyColorKr}</span>
             </div>
           </div>
-          <div style={{ flex:1, background:"rgba(255,255,255,0.85)", borderRadius:12,
-            padding:"10px 12px", border:"1px solid rgba(139,92,246,0.15)" }}>
-            <div style={{ fontSize:9, color:"#9ca3af", letterSpacing:2,
+          <div style={{ flex:1, background:"rgba(255,255,255,0.1)", borderRadius:12,
+            padding:"10px 12px" }}>
+            <div style={{ fontSize:9, color:"rgba(255,255,255,0.45)", letterSpacing:2,
               fontWeight:700, marginBottom:3 }}>LUCKY NUMBER · 행운의 숫자</div>
-            <div style={{ color:"#6d28d9", fontSize:26, fontWeight:900, lineHeight:1 }}>
+            <div style={{ color:"#fff", fontSize:26, fontWeight:900, lineHeight:1 }}>
               {result.luckyNumber}
             </div>
           </div>
@@ -470,11 +469,11 @@ Return ONLY valid JSON, no markdown:
 
         {/* Hanja + footer */}
         <div style={{ padding:"10px 16px 6px", textAlign:"center",
-          borderTop:"1px solid rgba(139,92,246,0.12)" }}>
-          <span style={{ color:"#9ca3af", fontSize:12 }}>漢字 · {result.hanja}</span>
+          borderTop:"1px solid rgba(255,255,255,0.1)" }}>
+          <span style={{ color:"rgba(255,255,255,0.4)", fontSize:12 }}>漢字 · {result.hanja}</span>
         </div>
         <div style={{ textAlign:"center", padding:"8px 0 14px",
-          color:"#c4b5fd", fontSize:10, letterSpacing:4 }}>
+          color:"rgba(255,255,255,0.35)", fontSize:10, letterSpacing:4 }}>
           ✦ K-MY NAME ✦
         </div>
       </div>
