@@ -466,7 +466,7 @@ Return ONLY valid JSON, no markdown:
         zIndex:1, animation:"fadeUp 0.8s ease",
       }}>
         <p style={{ fontSize:13, color:"#6b7280", lineHeight:1.7, marginBottom:20, textAlign:"center" }}>
-          🤳 Selfie + 📅 Birth date<br/>
+          📷 Selfie + 📅 Birth date<br/>
           <span style={{ fontSize:11, color:"#9ca3af" }}>AI analyzes your face &amp; Saju to craft your name</span>
         </p>
 
@@ -482,7 +482,7 @@ Return ONLY valid JSON, no markdown:
           if (IAB_TYPE) { setIabModal(true); return; }
           selfieRef.current?.click();
         }}>
-          🤳 Take Selfie
+          📷 Take Selfie
           <span style={btnSub}>셀피 찍기</span>
         </button>
 
