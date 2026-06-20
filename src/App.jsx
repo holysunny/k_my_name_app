@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import html2canvas from "html2canvas";
 
 const GEMINI_KEY = import.meta.env.VITE_GEMINI_KEY || "";
 
@@ -89,6 +90,8 @@ export default function App() {
   const [analyzing, setAnalyzing] = useState(0);
   const [dotIdx,    setDotIdx]    = useState(0);
   const [error,     setError]     = useState(null);
+  const [sharing,   setSharing]   = useState(false);
+  const cardRef = useRef(null);
 
   useEffect(() => {
     if (step !== "analyzing") return;
@@ -183,6 +186,44 @@ Return ONLY valid JSON, no markdown:
       console.error(err);
       setError(err.message);
       setStep("upload");
+    }
+  };
+
+  const resetHome = () => {
+    setPhoto(null); setResult(null);
+    setBirth({ year:"", month:"", day:"", hour:"Unknown" });
+    setStep("home");
+  };
+
+  const shareResult = async () => {
+    if (!cardRef.current) return;
+    setSharing(true);
+    await new Promise(r => setTimeout(r, 120)); // wait for solid-bg re-render
+    try {
+      const canvas = await html2canvas(cardRef.current, {
+        useCORS: true, scale: 2, backgroundColor: null,
+        logging: false,
+      });
+      canvas.toBlob(async (blob) => {
+        const file = new File([blob], `${result.korean}-korean-name.png`, { type:"image/png" });
+        if (navigator.canShare?.({ files:[file] })) {
+          await navigator.share({
+            files:[file],
+            title:`My Korean Name: ${result.korean} (${result.romanization})`,
+            text:`✨ I discovered my Korean name! ${result.korean} · ${result.romanization}`,
+          });
+        } else {
+          // fallback: download
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url; a.download = file.name; a.click();
+          URL.revokeObjectURL(url);
+        }
+      }, "image/png");
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSharing(false);
     }
   };
 
@@ -423,9 +464,12 @@ Return ONLY valid JSON, no markdown:
       <style>{CSS}</style>
       <Sparkles />
 
-      <div style={{
-        background:"rgba(255,255,255,0.13)",
-        backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)",
+      <div ref={cardRef} style={{
+        background: sharing
+          ? "linear-gradient(145deg,#6d28d9,#7c3aed 50%,#8b5cf6)"
+          : "rgba(255,255,255,0.13)",
+        backdropFilter: sharing ? "none" : "blur(24px)",
+        WebkitBackdropFilter: sharing ? "none" : "blur(24px)",
         border:"1.5px solid rgba(255,255,255,0.28)",
         borderRadius:28, width:"100%", maxWidth:360,
         overflow:"hidden", zIndex:1,
@@ -451,13 +495,16 @@ Return ONLY valid JSON, no markdown:
           </div>
           <div style={{ flex:1, padding:"20px 16px 16px 8px",
             display:"flex", flexDirection:"column", justifyContent:"center", gap:10 }}>
-            {/* Korean name — exception: stays Korean */}
-            <div style={{ fontSize:54, fontWeight:900, color:"#fff",
-              lineHeight:1, letterSpacing:-1, textShadow:"0 2px 12px rgba(0,0,0,0.4)" }}>
-              {result.korean}
-            </div>
-            <div style={{ fontSize:12, color:"rgba(255,255,255,0.75)", letterSpacing:4, fontWeight:700 }}>
-              {result.romanization}
+            {/* Korean name + romanization side by side */}
+            <div style={{ display:"flex", alignItems:"flex-end", gap:6, flexWrap:"wrap" }}>
+              <span style={{ fontSize:54, fontWeight:900, color:"#fff",
+                lineHeight:1, letterSpacing:-1, textShadow:"0 2px 12px rgba(0,0,0,0.4)" }}>
+                {result.korean}
+              </span>
+              <span style={{ fontSize:10, color:"rgba(255,255,255,0.7)", letterSpacing:3,
+                fontWeight:700, paddingBottom:7, lineHeight:1 }}>
+                {result.romanization}
+              </span>
             </div>
             <div style={{
               display:"inline-flex", alignItems:"center", gap:5,
@@ -549,21 +596,26 @@ Return ONLY valid JSON, no markdown:
         </div>
       </div>
 
-      {/* Action buttons */}
-      <div style={{ display:"flex", flexDirection:"column", gap:10,
-        marginTop:18, width:"100%", maxWidth:360, zIndex:1 }}>
-        <button style={btnGlass} onClick={() => setStep("shop")}>
-          🛍️ Personalized Goods
-          <span style={btnSub}>이름 굿즈 보기</span>
-        </button>
-        <button style={btnGlass} onClick={() => {
-          setPhoto(null); setResult(null);
-          setBirth({ year:"", month:"", day:"", hour:"Unknown" });
-          setStep("home");
-        }}>
-          🔄 Analyze Again
-          <span style={btnSub}>다시 분석하기</span>
-        </button>
+      {/* 3-button row */}
+      <div style={{ display:"flex", gap:8, marginTop:18, width:"100%", maxWidth:360, zIndex:1 }}>
+        {[
+          { icon:"📤", en:"Share",     kr:"결과 공유",    action: shareResult },
+          { icon:"🎁", en:"Keep Name", kr:"이름 간직하기", action: () => setStep("shop") },
+          { icon:"🏠", en:"Home",      kr:"홈으로",       action: resetHome },
+        ].map(({ icon, en, kr, action }) => (
+          <button key={en} onClick={action} style={{
+            flex:1, display:"flex", flexDirection:"column",
+            alignItems:"center", justifyContent:"center", gap:3,
+            background:"rgba(255,255,255,0.18)",
+            backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)",
+            border:"1px solid rgba(255,255,255,0.32)", color:"#fff",
+            borderRadius:14, padding:"12px 6px", cursor:"pointer",
+          }}>
+            <span style={{ fontSize:22 }}>{icon}</span>
+            <span style={{ fontSize:12, fontWeight:700 }}>{en}</span>
+            <span style={{ fontSize:9, opacity:0.55 }}>{kr}</span>
+          </button>
+        ))}
       </div>
     </div>
   );
