@@ -338,13 +338,16 @@ Return ONLY valid JSON, no markdown:
         <p style={{ fontSize:14, fontWeight:500, opacity:0.75, margin:"0 0 2px", lineHeight:1.5, fontStyle:"italic" }}>
           You just didn't know it yet.
         </p>
-        <p style={{ fontSize:11, opacity:0.4, margin:"0 0 16px", fontWeight:400, fontStyle:"italic" }}>
+        <p style={{ fontSize:11, opacity:0.4, margin:"0 0 12px", fontWeight:400, fontStyle:"italic" }}>
           단지 몰랐을 뿐이에요.
         </p>
 
-        <p style={{ fontSize:20, fontWeight:900, margin:"0 0 2px", letterSpacing:1,
-          textShadow:"0 2px 16px rgba(0,0,0,0.25)" }}>— Discover it now ↓</p>
-        <p style={{ fontSize:11, opacity:0.45, letterSpacing:1, fontWeight:500, margin:"2px 0 0" }}>지금 알아보세요</p>
+        <div style={{ opacity:0.35, fontSize:16, margin:"0 0 10px" }}>✦</div>
+
+        <p style={{ fontSize:14, fontWeight:500, opacity:0.75, margin:"0 0 2px", lineHeight:1.5, fontStyle:"italic" }}>
+          Discover it now ↓
+        </p>
+        <p style={{ fontSize:11, opacity:0.4, fontWeight:400, fontStyle:"italic", margin:0 }}>지금 알아보세요</p>
       </div>
 
       <div style={{
