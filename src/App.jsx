@@ -9,13 +9,17 @@ const HOURS = [
   "15:00 申時", "17:00 酉時", "19:00 戌時", "21:00 亥時",
 ];
 
+const FORM_BASE    = "https://docs.google.com/forms/d/e/1FAIpQLSdIlknrv_B0XvEKnyayGuE5tt5LA1h4p72ZaHBANvlcZYUxsw/viewform";
+const FORM_NAME    = "entry.1366709707";
+const FORM_PRODUCT = "entry.1513610605";
+
 const GOODS = [
-  { id:1, name:"Ceramic Mug",      emoji:"☕", price:24, desc:"Name printed in Hangul & English" },
-  { id:2, name:"Embroidered Tote", emoji:"👜", price:32, desc:"Hand-stitched name on cotton bag"  },
-  { id:3, name:"Keychain",         emoji:"🗝️", price:12, desc:"Acrylic charm with your name"      },
-  { id:4, name:"Name Stamp",       emoji:"🪬", price:18, desc:"Traditional ink stamp"             },
-  { id:5, name:"Silk Pouch",       emoji:"🧧", price:28, desc:"Embroidered on silk fabric"        },
-  { id:6, name:"Wall Art Print",   emoji:"🖼️", price:38, desc:"Calligraphy art print, A4"        },
+  { id:1, name:"Ceramic Mug",      emoji:"☕", price:22, desc:"Name printed in Hangul & English", formName:"Ceramic Classic Mug (11oz) - $22" },
+  { id:2, name:"Embroidered Tote", emoji:"👜", price:32, desc:"Hand-stitched name on cotton bag",  formName:"Embroidered Tote Bag - $32"       },
+  { id:3, name:"Keychain",         emoji:"🗝️", price:12, desc:"Acrylic charm with your name",      formName:"Acrylic Keychain - $12"           },
+  { id:4, name:"Name Stamp",       emoji:"🪬", price:18, desc:"Traditional ink stamp",             formName:"Name Stamp - $18"                 },
+  { id:5, name:"Silk Pouch",       emoji:"🧧", price:28, desc:"Embroidered on silk fabric",        formName:"Silk Pouch - $28"                 },
+  { id:6, name:"Wall Art Print",   emoji:"🖼️", price:38, desc:"Calligraphy art print, A4",        formName:"Wall Art Print (A4) - $38"        },
 ];
 
 const STEPS = [
@@ -348,6 +352,11 @@ Return ONLY valid JSON, no markdown:
       setErrorModal(true);
       setStep("upload");
     }
+  };
+
+  const orderGoods = (goods) => {
+    const url = `${FORM_BASE}?${FORM_NAME}=${encodeURIComponent(result?.korean || "")}&${FORM_PRODUCT}=${encodeURIComponent(goods.formName)}`;
+    window.open(url, "_blank");
   };
 
   const resetHome = () => {
@@ -834,10 +843,10 @@ Return ONLY valid JSON, no markdown:
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:4 }}>
               <span style={{ fontWeight:800, color:"#7c3aed", fontSize:15 }}>${g.price}</span>
               <button
-                onClick={() => alert("Coming soon! 서비스 준비중입니다 🛠️")}
+                onClick={() => orderGoods(g)}
                 style={{ background:"#7c3aed", color:"#fff", border:"none",
                   borderRadius:8, padding:"5px 11px", fontSize:12, cursor:"pointer", fontWeight:600 }}>
-                Add<span style={{ display:"block", fontSize:9, fontWeight:400, opacity:0.7 }}>담기</span>
+                Order<span style={{ display:"block", fontSize:9, fontWeight:400, opacity:0.7 }}>주문하기</span>
               </button>
             </div>
           </div>
