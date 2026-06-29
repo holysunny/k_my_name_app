@@ -12,6 +12,7 @@ const HOURS = [
 const FORM_BASE    = "https://docs.google.com/forms/d/e/1FAIpQLSdIlknrv_B0XvEKnyayGuE5tt5LA1h4p72ZaHBANvlcZYUxsw/viewform";
 const FORM_NAME    = "entry.1366709707";
 const FORM_PRODUCT = "entry.1513610605";
+const PAYPAL_ME    = "https://paypal.me/unofficialclub";
 
 const GOODS = [
   { id:1, name:"Ceramic Mug",      emoji:"☕", price:22, desc:"Name printed in Hangul & English", formName:"Ceramic Classic Mug (11oz) - $22" },
@@ -231,6 +232,7 @@ export default function App() {
   const [sharing,    setSharing]    = useState(false);
   const [errorModal, setErrorModal] = useState(false);
   const [iabModal,   setIabModal]   = useState(false);
+  const [orderModal, setOrderModal] = useState(null); // 선택된 goods item
   const cardRef    = useRef(null);
   const selfieRef  = useRef(null);
   const galleryRef = useRef(null);
@@ -354,10 +356,7 @@ Return ONLY valid JSON, no markdown:
     }
   };
 
-  const orderGoods = (goods) => {
-    const url = `${FORM_BASE}?${FORM_NAME}=${encodeURIComponent(result?.korean || "")}&${FORM_PRODUCT}=${encodeURIComponent(goods.formName)}`;
-    window.open(url, "_blank");
-  };
+  const orderGoods = (goods) => setOrderModal(goods);
 
   const resetHome = () => {
     setPhoto(null); setResult(null);
@@ -817,6 +816,73 @@ Return ONLY valid JSON, no markdown:
       background:"linear-gradient(160deg,#f5f0ff 0%,#ede9ff 100%)",
       padding:"24px 16px", boxSizing:"border-box" }}>
       <style>{CSS}</style>
+
+      {/* 주문 모달 */}
+      {orderModal && (
+        <div style={{
+          position:"fixed", inset:0, zIndex:9999,
+          display:"flex", alignItems:"center", justifyContent:"center",
+          background:"rgba(0,0,0,0.55)", backdropFilter:"blur(6px)",
+          WebkitBackdropFilter:"blur(6px)", padding:"20px",
+        }} onClick={() => setOrderModal(null)}>
+          <div style={{
+            background:"#fff", borderRadius:24, padding:"28px 22px",
+            maxWidth:320, width:"100%", textAlign:"center",
+            boxShadow:"0 24px 64px rgba(0,0,0,0.3)",
+            animation:"fadeUp 0.3s ease",
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ fontSize:44, marginBottom:8 }}>{orderModal.emoji}</div>
+            <h3 style={{ fontSize:17, fontWeight:800, color:"#1a1a1a", margin:"0 0 2px" }}>
+              {orderModal.name}
+            </h3>
+            <p style={{ fontSize:12, color:"#9ca3af", margin:"0 0 4px" }}>
+              For: <strong style={{ color:"#7c3aed" }}>{result?.korean}</strong> · {result?.romanization}
+            </p>
+            <p style={{ fontSize:22, fontWeight:900, color:"#7c3aed", margin:"0 0 20px" }}>
+              ${orderModal.price} USD
+            </p>
+
+            {/* PayPal 버튼 */}
+            <a href={`${PAYPAL_ME}/${orderModal.price}USD`} target="_blank" rel="noreferrer"
+              style={{
+                display:"block", background:"#0070ba", color:"#fff",
+                borderRadius:12, padding:"13px 0", fontSize:15,
+                fontWeight:700, textDecoration:"none", marginBottom:10,
+              }}>
+              💳 Pay ${orderModal.price} · PayPal
+              <span style={{ display:"block", fontSize:10, fontWeight:400, opacity:0.8, marginTop:2 }}>
+                카드 결제 가능 · 계정 없어도 OK
+              </span>
+            </a>
+
+            {/* Google Form 버튼 */}
+            <a href={`${FORM_BASE}?${FORM_NAME}=${encodeURIComponent(result?.korean||"")}&${FORM_PRODUCT}=${encodeURIComponent(orderModal.formName)}`}
+              target="_blank" rel="noreferrer"
+              style={{
+                display:"block", background:"#f3f4f6", color:"#374151",
+                borderRadius:12, padding:"13px 0", fontSize:14,
+                fontWeight:600, textDecoration:"none", marginBottom:16,
+              }}>
+              📋 Fill Shipping Form
+              <span style={{ display:"block", fontSize:10, fontWeight:400, color:"#9ca3af", marginTop:2 }}>
+                배송지 입력하기
+              </span>
+            </a>
+
+            <p style={{ fontSize:11, color:"#9ca3af", lineHeight:1.6, margin:"0 0 16px" }}>
+              Please complete <strong>both</strong> payment &amp; form.<br/>
+              결제 + 배송지 입력 모두 완료해야 발송됩니다.
+            </p>
+
+            <button onClick={() => setOrderModal(null)} style={{
+              background:"none", border:"none", color:"#9ca3af",
+              fontSize:13, cursor:"pointer", padding:"4px",
+            }}>
+              닫기 · Close
+            </button>
+          </div>
+        </div>
+      )}
 
       <div style={{ textAlign:"center", marginBottom:22, animation:"fadeUp 0.5s ease" }}>
         <div style={{
