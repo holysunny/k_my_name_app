@@ -351,20 +351,20 @@ Return ONLY valid JSON, no markdown:
       setStep("result");
     } catch (err) {
       console.error(err);
-      // 오너 알림 — ntfy.sh 푸시 (no-cors: 브라우저 CORS 우회)
+      // 오너 알림 — ntfy.sh 푸시 (sendBeacon: CORS 없이 확실하게 전송)
       const isTimeout = err.name === "AbortError";
+      const ntfyMsg = isTimeout
+        ? `⏱ 타임아웃 (30s 초과) — Gemini 서버 바쁨\n${new Date().toLocaleString("ko-KR")}`
+        : `🚨 API 오류: ${err.message}\n${new Date().toLocaleString("ko-KR")}`;
       const ntfyParams = new URLSearchParams({
         title: "K-MY NAME 오류",
         priority: "high",
         tags: isTimeout ? "hourglass_flowing_sand" : "warning",
       });
-      fetch(`https://ntfy.sh/kmyname-errors-sunny?${ntfyParams}`, {
-        method: "POST",
-        mode: "no-cors",
-        body: isTimeout
-          ? `⏱ 타임아웃 (30s 초과) — Gemini 서버 바쁨\n${new Date().toLocaleString("ko-KR")}`
-          : `🚨 API 오류: ${err.message}\n${new Date().toLocaleString("ko-KR")}`,
-      }).catch(() => {}); // 알림 실패해도 앱에 영향 없음
+      navigator.sendBeacon(
+        `https://ntfy.sh/kmyname-errors-sunny?${ntfyParams}`,
+        new Blob([ntfyMsg], { type: "text/plain" })
+      ); // 알림 실패해도 앱에 영향 없음
       setErrorModal(true);
       setStep("upload");
     }
