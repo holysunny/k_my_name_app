@@ -12,15 +12,13 @@ const HOURS = [
 const FORM_BASE    = "https://docs.google.com/forms/d/e/1FAIpQLSdIlknrv_B0XvEKnyayGuE5tt5LA1h4p72ZaHBANvlcZYUxsw/viewform";
 const FORM_NAME    = "entry.1366709707";
 const FORM_PRODUCT = "entry.1513610605";
-const PAYPAL_ME    = "https://paypal.me/unofficialclub";
-
 const GOODS = [
-  { id:1, name:"Ceramic Mug",      emoji:"☕", price:22, desc:"Name printed in Hangul & English", formName:"Ceramic Classic Mug (11oz) - $22" },
-  { id:2, name:"Embroidered Tote", emoji:"👜", price:32, desc:"Hand-stitched name on cotton bag",  formName:"Embroidered Tote Bag - $32"       },
-  { id:3, name:"Keychain",         emoji:"🗝️", price:12, desc:"Acrylic charm with your name",      formName:"Acrylic Keychain - $12"           },
-  { id:4, name:"Name Stamp",       emoji:"🪬", price:18, desc:"Traditional ink stamp",             formName:"Name Stamp - $18"                 },
-  { id:5, name:"Silk Pouch",       emoji:"🧧", price:28, desc:"Embroidered on silk fabric",        formName:"Silk Pouch - $28"                 },
-  { id:6, name:"Wall Art Print",   emoji:"🖼️", price:38, desc:"Calligraphy art print, A4",        formName:"Wall Art Print (A4) - $38"        },
+  { id:1, name:"Ceramic Mug",      emoji:"☕", price:22, desc:"Name printed in Hangul & English", formName:"Ceramic Classic Mug (11oz) - $22", paypalUrl:"https://www.paypal.com/ncp/payment/U2ET4MZXHS8NS" },
+  { id:2, name:"Embroidered Tote", emoji:"👜", price:32, desc:"Hand-stitched name on cotton bag",  formName:"Embroidered Tote Bag - $32",       paypalUrl:"https://www.paypal.com/ncp/payment/RN7DDTLLT3H9G" },
+  { id:3, name:"Keychain",         emoji:"🗝️", price:12, desc:"Acrylic charm with your name",      formName:"Acrylic Keychain - $12",           paypalUrl:"https://www.paypal.com/ncp/payment/AN73PNX2KYVZA" },
+  { id:4, name:"Name Stamp",       emoji:"🪬", price:18, desc:"Traditional ink stamp",             formName:"Name Stamp - $18",                 paypalUrl:"https://www.paypal.com/ncp/payment/3VC6SAYJAREFG" },
+  { id:5, name:"Silk Pouch",       emoji:"🧧", price:28, desc:"Embroidered on silk fabric",        formName:"Silk Pouch - $28",                 paypalUrl:"https://www.paypal.com/ncp/payment/G2JVST66ECAKY" },
+  { id:6, name:"Wall Art Print",   emoji:"🖼️", price:38, desc:"Calligraphy art print, A4",        formName:"Wall Art Print (A4) - $38",        paypalUrl:"https://www.paypal.com/ncp/payment/KMH8X43QTQQN4" },
 ];
 
 const STEPS = [
@@ -857,7 +855,7 @@ Return ONLY valid JSON, no markdown:
             </p>
 
             {/* PayPal 버튼 */}
-            <a href={`${PAYPAL_ME}/${orderModal.price}USD`} target="_blank" rel="noreferrer"
+            <a href={orderModal.paypalUrl} target="_blank" rel="noreferrer"
               style={{
                 display:"block", background:"#0070ba", color:"#fff",
                 borderRadius:12, padding:"13px 0", fontSize:15,
