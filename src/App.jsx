@@ -230,7 +230,10 @@ export default function App() {
   const [sharing,    setSharing]    = useState(false);
   const [errorModal, setErrorModal] = useState(false);
   const [iabModal,   setIabModal]   = useState(false);
-  const [orderModal, setOrderModal] = useState(null); // 선택된 goods item
+  const [orderModal, setOrderModal] = useState(null);
+  const [orderStep,  setOrderStep]  = useState("form"); // "form" | "payment"
+  const [shipForm,   setShipForm]   = useState({ name:"", email:"", address:"", city:"", postal:"", country:"" });
+  const [submitting, setSubmitting] = useState(false);
   const cardRef    = useRef(null);
   const selfieRef  = useRef(null);
   const galleryRef = useRef(null);
@@ -368,7 +371,40 @@ Return ONLY valid JSON, no markdown:
     }
   };
 
-  const orderGoods = (goods) => setOrderModal(goods);
+  const orderGoods = (goods) => {
+    setShipForm({ name:"", email:"", address:"", city:"", postal:"", country:"" });
+    setOrderStep("form");
+    setOrderModal(goods);
+  };
+
+  const submitOrder = async () => {
+    const { name, email, address, city, country } = shipForm;
+    if (!name || !email || !address || !city || !country) return;
+    setSubmitting(true);
+    try {
+      await fetch("https://k-my-name-default-rtdb.firebaseio.com/orders.json", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          koreanName: result?.korean,
+          romanization: result?.romanization,
+          product: orderModal?.name,
+          price: orderModal?.price,
+          ...shipForm,
+          orderedAt: new Date().toISOString(),
+        }),
+      });
+      // 오너 ntfy 알림
+      const msg = `🛍 새 주문!\n${result?.korean} (${result?.romanization}) · ${orderModal?.name} · $${orderModal?.price}\n📦 ${name} · ${city}, ${country}\n📧 ${email}`;
+      const p = new URLSearchParams({ title:"K-MY NAME 새 주문 🛍", priority:"high", tags:"shopping" });
+      navigator.sendBeacon(`https://ntfy.sh/kmyname-errors-sunny?${p}`, new Blob([msg], { type:"text/plain" }));
+      setOrderStep("payment");
+    } catch(e) {
+      console.error(e);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const resetHome = () => {
     setPhoto(null); setResult(null);
@@ -836,59 +872,101 @@ Return ONLY valid JSON, no markdown:
           display:"flex", alignItems:"center", justifyContent:"center",
           background:"rgba(0,0,0,0.55)", backdropFilter:"blur(6px)",
           WebkitBackdropFilter:"blur(6px)", padding:"20px",
-        }} onClick={() => setOrderModal(null)}>
+          overflowY:"auto",
+        }}>
           <div style={{
-            background:"#fff", borderRadius:24, padding:"28px 22px",
-            maxWidth:320, width:"100%", textAlign:"center",
+            background:"#fff", borderRadius:24, padding:"24px 20px",
+            maxWidth:340, width:"100%",
             boxShadow:"0 24px 64px rgba(0,0,0,0.3)",
             animation:"fadeUp 0.3s ease",
           }} onClick={e => e.stopPropagation()}>
-            <div style={{ fontSize:44, marginBottom:8 }}>{orderModal.emoji}</div>
-            <h3 style={{ fontSize:17, fontWeight:800, color:"#1a1a1a", margin:"0 0 2px" }}>
-              {orderModal.name}
-            </h3>
-            <p style={{ fontSize:12, color:"#9ca3af", margin:"0 0 4px" }}>
-              For: <strong style={{ color:"#7c3aed" }}>{result?.korean}</strong> · {result?.romanization}
-            </p>
-            <p style={{ fontSize:22, fontWeight:900, color:"#7c3aed", margin:"0 0 20px" }}>
-              ${orderModal.price} USD
-            </p>
 
-            {/* PayPal 버튼 */}
-            <a href={orderModal.paypalUrl} target="_blank" rel="noreferrer"
-              style={{
-                display:"block", background:"#0070ba", color:"#fff",
-                borderRadius:12, padding:"13px 0", fontSize:15,
-                fontWeight:700, textDecoration:"none", marginBottom:10,
-              }}>
-              💳 Pay ${orderModal.price} · PayPal
-              <span style={{ display:"block", fontSize:10, fontWeight:400, opacity:0.8, marginTop:2 }}>
-                카드 결제 가능 · 계정 없어도 OK
-              </span>
-            </a>
+            {/* 상품 헤더 */}
+            <div style={{ textAlign:"center", marginBottom:16 }}>
+              <div style={{ fontSize:36 }}>{orderModal.emoji}</div>
+              <div style={{ fontWeight:800, fontSize:16, color:"#1a1a1a", margin:"4px 0 2px" }}>{orderModal.name}</div>
+              <div style={{ fontSize:12, color:"#9ca3af" }}>
+                For: <strong style={{ color:"#7c3aed" }}>{result?.korean}</strong> · {result?.romanization}
+              </div>
+              <div style={{ fontSize:20, fontWeight:900, color:"#7c3aed", marginTop:4 }}>${orderModal.price} USD</div>
+            </div>
 
-            {/* Google Form 버튼 */}
-            <a href={`${FORM_BASE}?${FORM_NAME}=${encodeURIComponent(result?.korean||"")}&${FORM_PRODUCT}=${encodeURIComponent(orderModal.formName)}`}
-              target="_blank" rel="noreferrer"
-              style={{
-                display:"block", background:"#f3f4f6", color:"#374151",
-                borderRadius:12, padding:"13px 0", fontSize:14,
-                fontWeight:600, textDecoration:"none", marginBottom:16,
-              }}>
-              📋 Fill Shipping Form
-              <span style={{ display:"block", fontSize:10, fontWeight:400, color:"#9ca3af", marginTop:2 }}>
-                배송지 입력하기
-              </span>
-            </a>
+            {orderStep === "form" ? (<>
+              {/* STEP 1 — 배송지 입력 */}
+              <div style={{ background:"#f5f3ff", borderRadius:12, padding:"10px 14px", marginBottom:14 }}>
+                <div style={{ fontSize:10, fontWeight:700, color:"#7c3aed", letterSpacing:1 }}>STEP 1 · Shipping Info</div>
+                <div style={{ fontSize:9, color:"#a78bfa" }}>배송지를 입력해주세요</div>
+              </div>
 
-            <p style={{ fontSize:11, color:"#9ca3af", lineHeight:1.6, margin:"0 0 16px" }}>
-              Please complete <strong>both</strong> payment &amp; form.<br/>
-              결제 + 배송지 입력 모두 완료해야 발송됩니다.
-            </p>
+              {[
+                { key:"name",    label:"Full Name",      placeholder:"Jane Smith",        type:"text"  },
+                { key:"email",   label:"Email",          placeholder:"jane@example.com",  type:"email" },
+                { key:"address", label:"Street Address", placeholder:"123 Main St",       type:"text"  },
+                { key:"city",    label:"City",           placeholder:"Hong Kong",         type:"text"  },
+                { key:"postal",  label:"Postal Code (optional)", placeholder:"000000",   type:"text"  },
+                { key:"country", label:"Country",        placeholder:"Hong Kong",         type:"text"  },
+              ].map(f => (
+                <div key={f.key} style={{ marginBottom:8 }}>
+                  <label style={{ fontSize:10, color:"#6b7280", fontWeight:600, textTransform:"uppercase", letterSpacing:0.5, display:"block", marginBottom:3 }}>
+                    {f.label}
+                  </label>
+                  <input
+                    type={f.type}
+                    placeholder={f.placeholder}
+                    value={shipForm[f.key]}
+                    onChange={e => setShipForm(p => ({ ...p, [f.key]: e.target.value }))}
+                    style={{ width:"100%", boxSizing:"border-box", border:"1.5px solid #e5e7eb", borderRadius:8, padding:"8px 10px", fontSize:13, fontFamily:"inherit", outline:"none" }}
+                  />
+                </div>
+              ))}
+
+              <button
+                onClick={submitOrder}
+                disabled={submitting || !shipForm.name || !shipForm.email || !shipForm.address || !shipForm.city || !shipForm.country}
+                style={{
+                  width:"100%", background: submitting ? "#a78bfa" : "#7c3aed",
+                  color:"#fff", border:"none", borderRadius:12,
+                  padding:"13px 0", fontSize:14, fontWeight:700,
+                  cursor:"pointer", marginTop:6, fontFamily:"inherit",
+                  opacity: (!shipForm.name || !shipForm.email || !shipForm.address || !shipForm.city || !shipForm.country) ? 0.5 : 1,
+                }}>
+                {submitting ? "Saving..." : "Next: Pay →"}
+                <span style={{ display:"block", fontSize:10, fontWeight:400, opacity:0.75, marginTop:2 }}>배송지 저장 후 결제</span>
+              </button>
+
+            </>) : (<>
+              {/* STEP 2 — 결제 */}
+              <div style={{ background:"#f0fdf4", borderRadius:12, padding:"10px 14px", marginBottom:14 }}>
+                <div style={{ fontSize:10, fontWeight:700, color:"#16a34a", letterSpacing:1 }}>✅ STEP 1 Complete!</div>
+                <div style={{ fontSize:9, color:"#4ade80" }}>배송지가 저장되었어요</div>
+              </div>
+
+              <div style={{ background:"#f5f3ff", borderRadius:12, padding:"10px 14px", marginBottom:14 }}>
+                <div style={{ fontSize:10, fontWeight:700, color:"#7c3aed", letterSpacing:1 }}>STEP 2 · Payment</div>
+                <div style={{ fontSize:9, color:"#a78bfa" }}>결제를 완료해주세요</div>
+              </div>
+
+              <a href={orderModal.paypalUrl} target="_blank" rel="noreferrer"
+                style={{
+                  display:"block", background:"#0070ba", color:"#fff",
+                  borderRadius:12, padding:"14px 0", fontSize:15,
+                  fontWeight:700, textDecoration:"none", textAlign:"center", marginBottom:12,
+                }}>
+                💳 Pay ${orderModal.price} · PayPal
+                <span style={{ display:"block", fontSize:10, fontWeight:400, opacity:0.8, marginTop:2 }}>
+                  No account needed · 계정 없어도 OK
+                </span>
+              </a>
+
+              <p style={{ fontSize:11, color:"#9ca3af", textAlign:"center", lineHeight:1.6, margin:"0 0 12px" }}>
+                Your order will be shipped within<br/>5–7 business days after payment. 📦
+              </p>
+            </>)}
 
             <button onClick={() => setOrderModal(null)} style={{
-              background:"none", border:"none", color:"#9ca3af",
-              fontSize:13, cursor:"pointer", padding:"4px",
+              display:"block", margin:"0 auto",
+              background:"none", border:"none", color:"#d1d5db",
+              fontSize:12, cursor:"pointer", padding:"4px",
             }}>
               닫기 · Close
             </button>
