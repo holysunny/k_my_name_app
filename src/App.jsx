@@ -229,6 +229,7 @@ export default function App() {
   const [error,     setError]     = useState(null);
   const [sharing,    setSharing]    = useState(false);
   const [errorModal, setErrorModal] = useState(false);
+  const [noFaceModal, setNoFaceModal] = useState(false);
   const [iabModal,   setIabModal]   = useState(false);
   const [orderModal, setOrderModal] = useState(null);
   const [orderStep,  setOrderStep]  = useState("form"); // "form" | "payment"
@@ -267,13 +268,18 @@ export default function App() {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => { setPhoto(ev.target.result); setStep("upload"); };
+    reader.onload = (ev) => {
+      setPhoto(ev.target.result);
+      setStep("upload");
+      setError(null);
+    };
     reader.readAsDataURL(file);
   }, []);
 
   const birthValid = birth.year.length === 4 && birth.month && birth.day;
 
   const analyze = async () => {
+    if (!photo) { setStep("home"); return; }
     setStep("analyzing");
     setAnalyzing(0);
     setError(null);
@@ -281,19 +287,21 @@ export default function App() {
       const base64   = photo.split(",")[1];
       const mimeType = photo.split(";")[0].split(":")[1];
 
-      const prompt = `STEP 1 — Face check: Does this image contain a clearly visible human face (selfie, portrait, headshot)?
-If NO human face is visible (object, food, animal, landscape, text, etc.), respond ONLY with:
+      const prompt = `STEP 1 — Face check: Does this image contain at least one human or animal face in a real photograph (babies, children, adults, group photos, pets — all OK)?
+If the image is a cartoon, illustration, anime, drawing, painting, AI art, or any non-photographic artwork — respond ONLY with:
+{"error":"no_face"}
+If there is NO face at all (object, food, landscape, text, etc.) — respond ONLY with:
 {"error":"no_face"}
 
-If YES, a human face is detected, proceed with this full analysis.
+If YES, a real face is present in a real photo, proceed with this full analysis.
 Birth: ${birth.year}/${birth.month}/${birth.day}, Hour: ${birth.hour}
 
 You are a Korean name master and Saju (사주) expert. Analyze the face and birth info.
 Return ONLY valid JSON, no markdown:
 {
-  "korean": "한글 이름 2-3자",
-  "hanja": "漢字",
-  "romanization": "ROMANIZED NAME IN CAPS",
+  "korean": "한글 이름(given name only, NO family name/성, 1-2자, e.g. 하나 not 김하나)",
+  "hanja": "漢字 (given name only, no family name hanja)",
+  "romanization": "ROMANIZED GIVEN NAME IN CAPS (e.g. HANA not KIM HANA)",
   "element": "Water",
   "elementKr": "수",
   "elementEmoji": "💧",
@@ -328,7 +336,7 @@ Return ONLY valid JSON, no markdown:
               { inlineData:{ mimeType, data:base64 } },
               { text:prompt },
             ]}],
-            generationConfig:{ temperature:0.85, responseMimeType:"application/json" },
+            generationConfig:{ temperature:0.85 },
           }),
           signal: controller.signal,
         }
@@ -343,8 +351,8 @@ Return ONLY valid JSON, no markdown:
       const parsed = JSON.parse(json);
 
       if (parsed.error === "no_face") {
-        setError("No face detected. Please upload a selfie or portrait photo.\n얼굴을 찾을 수 없어요. 셀피나 인물 사진을 올려주세요.");
-        setStep("upload");
+        setNoFaceModal(true);
+        setPhoto(null);
         return;
       }
 
@@ -367,7 +375,6 @@ Return ONLY valid JSON, no markdown:
         new Blob([ntfyMsg], { type: "text/plain" })
       ); // 알림 실패해도 앱에 영향 없음
       setErrorModal(true);
-      setStep("upload");
     }
   };
 
@@ -576,6 +583,38 @@ Return ONLY valid JSON, no markdown:
   if (step === "upload") return (
     <>
     {errorModal && <ErrorModal onClose={() => setErrorModal(false)} />}
+
+      {noFaceModal && (
+        <div style={{
+          position:"fixed", inset:0, zIndex:9999,
+          display:"flex", alignItems:"center", justifyContent:"center",
+          background:"rgba(0,0,0,0.55)", backdropFilter:"blur(6px)",
+          WebkitBackdropFilter:"blur(6px)", padding:"20px",
+        }}>
+          <div style={{
+            background:"#fff", borderRadius:24, padding:"32px 24px",
+            maxWidth:300, width:"100%", textAlign:"center",
+            boxShadow:"0 24px 64px rgba(0,0,0,0.3)",
+            animation:"fadeUp 0.3s ease",
+          }}>
+            <div style={{ fontSize:48, marginBottom:12 }}>🙈</div>
+            <h3 style={{ fontSize:17, fontWeight:800, color:"#1a1a1a", margin:"0 0 8px" }}>
+              No face detected
+            </h3>
+            <p style={{ fontSize:13, color:"#6b7280", lineHeight:1.65, margin:"0 0 20px" }}>
+              얼굴을 찾을 수 없어요.<br/>
+              셀피나 인물 사진을 올려주세요 📸
+            </p>
+            <button onClick={() => { setNoFaceModal(false); setStep("home"); }} style={{
+              background:"#7c3aed", color:"#fff", border:"none",
+              borderRadius:12, padding:"12px 32px", fontSize:14,
+              fontWeight:700, cursor:"pointer", fontFamily:"inherit",
+            }}>
+              다시 시도 · Try Again
+            </button>
+          </div>
+        </div>
+      )}
     <div style={{ maxWidth:480, margin:"0 auto", minHeight:"100vh",
       background:"linear-gradient(160deg,#f5f0ff 0%,#ede9ff 100%)",
       padding:"28px 16px", boxSizing:"border-box" }}>
@@ -593,13 +632,6 @@ Return ONLY valid JSON, no markdown:
         <p style={{ fontSize:11, color:"#9ca3af", margin:"2px 0 0" }}>생년월일을 입력해주세요</p>
       </div>
 
-      {error && (
-        <div style={{
-          background:"#fef2f2", border:"1px solid #fecaca",
-          borderRadius:10, padding:"12px 14px", marginBottom:16,
-          color:"#b91c1c", fontSize:13, lineHeight:1.65, whiteSpace:"pre-line",
-        }}>⚠️ {error}</div>
-      )}
 
       {photo && (
         <div style={{ textAlign:"center", marginBottom:22, animation:"fadeUp 0.5s ease" }}>
@@ -619,6 +651,10 @@ Return ONLY valid JSON, no markdown:
               <span style={{ fontSize:10, opacity:0.5, fontWeight:400 }}>사진 변경</span>
             </button>
           </div>
+          <p style={{ fontSize:11, color:"#a78bfa", margin:"6px 0 0", textAlign:"center", lineHeight:1.6 }}>
+            📌 For best results, upload a solo photo<br/>
+            <span style={{ color:"#c4b5fd" }}>혼자 나온 사진을 올리면 더 정확해요</span>
+          </p>
         </div>
       )}
 
@@ -668,6 +704,18 @@ Return ONLY valid JSON, no markdown:
   /* ════════════════════════════════ ANALYZING ═════════════════════════ */
   if (step === "analyzing") {
     if (errorModal) return <ErrorModal onClose={() => { setErrorModal(false); setStep("upload"); }} />;
+    if (noFaceModal) return (
+      <div style={{ position:"fixed", inset:0, zIndex:9999, display:"flex", alignItems:"center", justifyContent:"center", background:"rgba(0,0,0,0.55)", backdropFilter:"blur(6px)", padding:"20px" }}>
+        <div style={{ background:"#fff", borderRadius:24, padding:"32px 24px", maxWidth:300, width:"100%", textAlign:"center", boxShadow:"0 24px 64px rgba(0,0,0,0.3)" }}>
+          <div style={{ fontSize:48, marginBottom:12 }}>🙈</div>
+          <h3 style={{ fontSize:17, fontWeight:800, color:"#1a1a1a", margin:"0 0 8px" }}>No face detected</h3>
+          <p style={{ fontSize:13, color:"#6b7280", lineHeight:1.65, margin:"0 0 20px" }}>얼굴을 찾을 수 없어요.<br/>셀피나 인물 사진을 올려주세요 📸</p>
+          <button onClick={() => { setNoFaceModal(false); setStep("home"); }} style={{ background:"#7c3aed", color:"#fff", border:"none", borderRadius:12, padding:"12px 32px", fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
+            다시 시도 · Try Again
+          </button>
+        </div>
+      </div>
+    );
     const cur = STEPS[analyzing % STEPS.length];
     return (
       <div style={pageBg}>
@@ -697,7 +745,8 @@ Return ONLY valid JSON, no markdown:
   }
 
   /* ════════════════════════════════ RESULT ════════════════════════════ */
-  if (step === "result" && result) return (
+  if (step === "result" && !result) return null;
+  if (step === "result") return (
     <div style={pageBg}>
       <style>{CSS}</style>
       <Sparkles />
