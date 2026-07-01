@@ -8,25 +8,30 @@
 ────────────────────────────────────
 
 제목:
-K-MY NAME · Your order is confirmed! ({{product}})
+💌 Your K-MY NAME order is confirmed! ({{product}})
 
 본문:
-Hi {{name}},
+Hi {{name}}! 👋
 
-Thank you for your order! We've confirmed your payment.
+Thank you so much for your order — we're so excited to make
+this for you! 🎉
 
-Order: {{product}} (${{price}})
-Your Korean name: {{koreanName}} ({{romanization}})
+✅ Your payment is confirmed!
 
-You can check your order status anytime here:
+🛍 Order: {{product}} (${{price}})
+✨ Your Korean name: {{koreanName}} ({{romanization}})
+
+Curious how your order is coming along? Check anytime here 💫
 https://k-my-name-app.vercel.app/order-status.html
-(Enter your email + romanized name: {{romanization}})
+📧 Email + 🔤 Romanized name: {{romanization}}
 
-Your item will ship within 5-7 business days. We'll update the
-tracking info on the status page once it's ready.
+Your item will be lovingly made and shipped within 5–7 business
+days 📦 We'll keep the status page updated as it moves along!
 
-Thank you again!
-K-MY NAME
+Thank you again for being part of K-MY NAME 💜
+Talk soon!
+
+— K-MY NAME team
 
 ────────────────────────────────────
 
