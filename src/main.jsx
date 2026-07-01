@@ -3,6 +3,22 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
 
+/* Twemoji가 이모지를 <img>로 직접 DOM 교체하면서 React가 관리하는 노드를
+   건드리면 "removeChild: not a child of this node" 크래시가 남.
+   React가 이미 사라진/바뀐 노드를 지우려 할 때 조용히 무시하도록 방어. */
+{
+  const origRemoveChild = Node.prototype.removeChild;
+  Node.prototype.removeChild = function (child) {
+    if (child.parentNode !== this) return child;
+    return origRemoveChild.call(this, child);
+  };
+  const origInsertBefore = Node.prototype.insertBefore;
+  Node.prototype.insertBefore = function (newNode, refNode) {
+    if (refNode && refNode.parentNode !== this) return newNode;
+    return origInsertBefore.call(this, newNode, refNode);
+  };
+}
+
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props);

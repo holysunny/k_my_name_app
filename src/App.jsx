@@ -582,7 +582,7 @@ Return ONLY valid JSON, no markdown:
   /* ════════════════════════════════ UPLOAD ════════════════════════════ */
   if (step === "upload") return (
     <>
-    {errorModal && <ErrorModal onClose={() => setErrorModal(false)} />}
+    {errorModal && <ErrorModal onClose={() => { setErrorModal(false); resetHome(); }} />}
 
       {noFaceModal && (
         <div style={{
@@ -703,7 +703,7 @@ Return ONLY valid JSON, no markdown:
 
   /* ════════════════════════════════ ANALYZING ═════════════════════════ */
   if (step === "analyzing") {
-    if (errorModal) return <ErrorModal onClose={() => { setErrorModal(false); setStep("upload"); }} />;
+    if (errorModal) return <ErrorModal onClose={() => { setErrorModal(false); resetHome(); }} />;
     if (noFaceModal) return (
       <div style={{ position:"fixed", inset:0, zIndex:9999, display:"flex", alignItems:"center", justifyContent:"center", background:"rgba(0,0,0,0.55)", backdropFilter:"blur(6px)", padding:"20px" }}>
         <div style={{ background:"#fff", borderRadius:24, padding:"32px 24px", maxWidth:300, width:"100%", textAlign:"center", boxShadow:"0 24px 64px rgba(0,0,0,0.3)" }}>
