@@ -1,0 +1,40 @@
+[K-MY NAME 주문확인 메일 템플릿]
+발신 계정: kmyname.kr@gmail.com (tbot 등록 완료, accountId: xHwq2FtZ5pb4Yg9z8qqt)
+사용법: 써니님이 "N번 고객 메일 보내줘"라고 하면, admin.html과 동일한 정렬(최신순)로
+Firebase에서 N번째 주문을 찾아 아래 템플릿에 값 채워서 발송함.
+
+────────────────────────────────────
+
+제목:
+K-MY NAME · Your order is confirmed! ({{product}})
+
+본문:
+Hi {{name}},
+
+Thank you for your order! We've confirmed your payment.
+
+Order: {{product}} (${{price}})
+Your Korean name: {{koreanName}} ({{romanization}})
+
+You can check your order status anytime here:
+https://k-my-name-app.vercel.app/order-status.html
+(Enter your email + romanized name: {{romanization}})
+
+Your item will ship within 5-7 business days. We'll update the
+tracking info on the status page once it's ready.
+
+Thank you again!
+K-MY NAME
+
+────────────────────────────────────
+
+[변수 목록]
+{{name}}          Firebase order.name (배송지 입력한 이름)
+{{product}}       Firebase order.product
+{{price}}         Firebase order.price
+{{koreanName}}    Firebase order.koreanName
+{{romanization}}  Firebase order.romanization (조회 페이지 로그인용)
+
+[발송 시 처리]
+- 메일 발송과 동시에 해당 주문 status를 "주문중"으로 PATCH
+  (POST https://k-my-name-default-rtdb.firebaseio.com/orders/{id}.json)
