@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K-MY NAME · Order Status</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Noto Sans KR", sans-serif;
+    background: linear-gradient(160deg,#f5f0ff 0%,#ede9ff 100%);
+    min-height: 100vh; margin: 0; padding: 24px 16px;
+    color: #1a1a1a; display: flex; justify-content: center;
+  }
+  .wrap { width: 100%; max-width: 420px; }
+  h1 {
+    text-align: center; font-size: 22px; font-weight: 900; letter-spacing: 1px;
+    background: linear-gradient(90deg,#6d28d9,#a855f7);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin: 0 0 4px;
+  }
+  .sub { text-align: center; font-size: 12px; color: #9ca3af; margin: 0 0 24px; }
+  .card {
+    background: #fff; border-radius: 18px; padding: 20px 18px;
+    box-shadow: 0 2px 16px rgba(109,40,217,0.1);
+    border: 1px solid rgba(139,92,246,0.12); margin-bottom: 14px;
+  }
+  label { font-size: 11px; color: #6b7280; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px; }
+  input {
+    width: 100%; box-sizing: border-box; padding: 11px 12px; margin-bottom: 12px;
+    border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px; font-family: inherit; outline: none;
+  }
+  button {
+    width: 100%; background: #7c3aed; color: #fff; border: none; border-radius: 12px;
+    padding: 13px 0; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit;
+  }
+  .result-card {
+    background: #fff; border-radius: 16px; padding: 16px; margin-bottom: 12px;
+    box-shadow: 0 2px 12px rgba(109,40,217,0.08); border: 1px solid rgba(139,92,246,0.1);
+  }
+  .rc-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .rc-product { font-weight: 800; font-size: 14px; }
+  .rc-price { color: #7c3aed; font-weight: 700; font-size: 13px; }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .badge.pending { background: #fef3c7; color: #b45309; }
+  .badge.paid { background: #ede9fe; color: #6d28d9; }
+  .badge.making { background: #dbeafe; color: #1d4ed8; }
+  .zz { margin-top: 8px; font-size: 12px; color: #4b5563; background: #f5f3ff; border-radius: 8px; padding: 8px 10px; }
+  .empty { text-align: center; color: #9ca3af; font-size: 13px; padding: 20px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>K-MY NAME</h1>
+  <p class="sub">주문 상태 조회 · Order Status</p>
+
+  <div class="card">
+    <label>Email 이메일</label>
+    <input type="email" id="email" placeholder="you@example.com">
+    <label>Korean Name 발급받은 한글이름</label>
+    <input type="text" id="kname" placeholder="예: 하나">
+    <button onclick="lookup()">조회하기 · Check Status</button>
+  </div>
+
+  <div id="results"></div>
+</div>
+
+<script>
+const DB = "https://k-my-name-default-rtdb.firebaseio.com/orders.json";
+
+async function lookup() {
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  const kname = document.getElementById('kname').value.trim();
+  const resultsEl = document.getElementById('results');
+
+  if (!email || !kname) {
+    resultsEl.innerHTML = '<div class="empty">이메일과 한글이름을 모두 입력해주세요</div>';
+    return;
+  }
+
+  resultsEl.innerHTML = '<div class="empty">조회 중...</div>';
+
+  const res = await fetch(DB);
+  const data = await res.json();
+  const orders = Object.values(data || {}).filter(o =>
+    (o.email || '').trim().toLowerCase() === email && (o.koreanName || '').trim() === kname
+  ).sort((a, b) => new Date(b.orderedAt || 0) - new Date(a.orderedAt || 0));
+
+  if (orders.length === 0) {
+    resultsEl.innerHTML = '<div class="empty">일치하는 주문을 찾을 수 없어요.<br>이메일/한글이름을 다시 확인해주세요.</div>';
+    return;
+  }
+
+  resultsEl.innerHTML = orders.map(o => {
+    let badge, badgeText;
+    if (o.zazzleOrderId) { badge = 'making'; badgeText = '🎨 제작/배송 중'; }
+    else if (o.paid) { badge = 'paid'; badgeText = '✅ 결제 확인됨'; }
+    else { badge = 'pending'; badgeText = '⏳ 결제 대기중'; }
+
+    return `
+      <div class="result-card">
+        <div class="rc-top">
+          <span class="rc-product">${esc(o.product)}</span>
+          <span class="rc-price">$${o.price ?? '-'}</span>
+        </div>
+        <span class="badge ${badge}">${badgeText}</span>
+        <div style="font-size:11px;color:#9ca3af;margin-top:8px;">
+          ${o.orderedAt ? new Date(o.orderedAt).toLocaleDateString('ko-KR') : ''}
+        </div>
+        ${o.zazzleOrderId ? `<div class="zz">📦 Zazzle 주문번호: <b>${esc(o.zazzleOrderId)}</b><br>이 번호로 Zazzle에서 배송조회가 가능해요.</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function esc(v) {
+  return v == null ? '-' : String(v).replace(/</g, '&lt;');
+}
+
+document.getElementById('kname').addEventListener('keydown', e => { if (e.key === 'Enter') lookup(); });
+</script>
+</body>
+</html>
