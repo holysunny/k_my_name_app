@@ -1010,7 +1010,7 @@ Return ONLY valid JSON, no markdown:
               </p>
 
               <p style={{ fontSize:11, color:"#a78bfa", textAlign:"center", lineHeight:1.6, margin:"0 0 4px" }}>
-                📋 주문 상태는 이메일+한글이름으로 조회 가능해요<br/>
+                📋 주문 상태는 이메일+로마자 이름으로 조회 가능해요<br/>
                 <a href="/order-status.html" target="_blank" rel="noreferrer" style={{ color:"#7c3aed", fontWeight:700 }}>
                   k-my-name-app.vercel.app/order-status.html
                 </a>

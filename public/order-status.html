@@ -57,8 +57,8 @@
   <div class="card">
     <label>Email 이메일</label>
     <input type="email" id="email" placeholder="you@example.com">
-    <label>Korean Name 발급받은 한글이름</label>
-    <input type="text" id="kname" placeholder="예: 하나">
+    <label>Romanized Name 로마자 이름</label>
+    <input type="text" id="kname" placeholder="e.g. HANA">
     <button onclick="lookup()">조회하기 · Check Status</button>
   </div>
 
@@ -74,7 +74,7 @@ async function lookup() {
   const resultsEl = document.getElementById('results');
 
   if (!email || !kname) {
-    resultsEl.innerHTML = '<div class="empty">이메일과 한글이름을 모두 입력해주세요</div>';
+    resultsEl.innerHTML = '<div class="empty">이메일과 로마자 이름을 모두 입력해주세요</div>';
     return;
   }
 
@@ -83,11 +83,11 @@ async function lookup() {
   const res = await fetch(DB);
   const data = await res.json();
   const orders = Object.values(data || {}).filter(o =>
-    (o.email || '').trim().toLowerCase() === email && (o.koreanName || '').trim() === kname
+    (o.email || '').trim().toLowerCase() === email && (o.romanization || '').trim().toUpperCase() === kname.toUpperCase()
   ).sort((a, b) => new Date(b.orderedAt || 0) - new Date(a.orderedAt || 0));
 
   if (orders.length === 0) {
-    resultsEl.innerHTML = '<div class="empty">일치하는 주문을 찾을 수 없어요.<br>이메일/한글이름을 다시 확인해주세요.</div>';
+    resultsEl.innerHTML = '<div class="empty">일치하는 주문을 찾을 수 없어요.<br>이메일/로마자 이름을 다시 확인해주세요.</div>';
     return;
   }
 
