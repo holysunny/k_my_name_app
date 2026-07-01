@@ -400,6 +400,7 @@ Return ONLY valid JSON, no markdown:
           ...shipForm,
           orderedAt: new Date().toISOString(),
           paid: false,
+          status: "결제전",
         }),
       });
       // 오너 ntfy 알림

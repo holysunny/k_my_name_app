@@ -19,17 +19,19 @@
   table { width:100%; border-collapse:collapse; }
   th, td { padding:10px 12px; text-align:left; font-size:12px; border-bottom:1px solid #f0f0f0; white-space:nowrap; }
   th { background:#f5f3ff; color:#6b7280; font-weight:700; position:sticky; top:0; }
-  .paid { color:#16a34a; font-weight:700; }
-  .unpaid { color:#dc2626; font-weight:700; }
-  .toggle { padding:4px 10px; border-radius:8px; border:none; cursor:pointer; font-size:11px; font-weight:700; margin-top:4px; }
-  .toggle.mark-paid { background:#dcfce7; color:#16a34a; }
-  .toggle.mark-unpaid { background:#fee2e2; color:#dc2626; }
   #wrap { display:none; }
   .empty { padding:40px; text-align:center; color:#9ca3af; font-size:13px; }
   .zz-row { display:flex; gap:4px; align-items:center; }
   .zz-row input { width:110px; padding:4px 6px; border:1px solid #e5e7eb; border-radius:6px; font-size:11px; }
   .zz-row button { padding:4px 8px; border:none; border-radius:6px; background:#7c3aed; color:#fff; font-size:11px; cursor:pointer; font-weight:700; }
   .zz-done { font-size:11px; color:#16a34a; font-weight:700; }
+  .badge { display:inline-block; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:700; margin-bottom:4px; }
+  .badge.s0 { background:#fee2e2; color:#dc2626; }
+  .badge.s1 { background:#ede9fe; color:#6d28d9; }
+  .badge.s2 { background:#fef3c7; color:#b45309; }
+  .badge.s3 { background:#dbeafe; color:#1d4ed8; }
+  .badge.s4 { background:#dcfce7; color:#16a34a; }
+  select.status-select { display:block; font-size:11px; padding:4px 6px; border-radius:6px; border:1px solid #e5e7eb; }
 </style>
 </head>
 <body>
@@ -47,7 +49,7 @@
     <table>
       <thead>
         <tr>
-          <th>일시</th><th>결제상태</th><th>메일</th><th>Zazzle 주문번호</th><th>이름</th><th>상품</th><th>가격</th>
+          <th>일시</th><th>상태</th><th>Zazzle 주문번호</th><th>이름</th><th>상품</th><th>가격</th>
           <th>이메일</th><th>주소</th><th>도시</th><th>우편번호</th><th>국가</th><th>한국이름</th>
         </tr>
       </thead>
@@ -59,6 +61,7 @@
 <script>
 const PASSCODE = "sunny2026"; // 필요시 이 값만 바꿔서 재배포하면 비밀번호 변경됨
 const DB = "https://k-my-name-default-rtdb.firebaseio.com/orders.json";
+const STATUSES = ["결제전", "결제완료", "주문중", "배송중", "배송완료"];
 
 function tryLogin() {
   const v = document.getElementById('pw').value;
@@ -71,18 +74,19 @@ function tryLogin() {
   }
 }
 
+function getStatus(o) {
+  return o.status || (o.paid ? "결제완료" : "결제전");
+}
+
 async function load() {
   const res = await fetch(DB);
   const data = await res.json();
   const orders = Object.entries(data || {}).map(([id, o]) => ({ id, ...o }))
     .sort((a, b) => new Date(b.orderedAt || 0) - new Date(a.orderedAt || 0));
 
-  const paidCount = orders.filter(o => o.paid).length;
-  const unpaidCount = orders.length - paidCount;
   document.getElementById('stats').innerHTML = `
     <div class="stat"><b>${orders.length}</b><span>전체 주문</span></div>
-    <div class="stat"><b>${paidCount}</b><span>결제 완료</span></div>
-    <div class="stat"><b>${unpaidCount}</b><span>결제 대기 · 포기 가능성</span></div>
+    ${STATUSES.map(s => `<div class="stat"><b>${orders.filter(o => getStatus(o) === s).length}</b><span>${s}</span></div>`).join('')}
   `;
 
   if (orders.length === 0) {
@@ -91,17 +95,17 @@ async function load() {
     return;
   }
 
-  document.getElementById('rows').innerHTML = orders.map(o => `
+  document.getElementById('rows').innerHTML = orders.map(o => {
+    const status = getStatus(o);
+    const badgeIdx = STATUSES.indexOf(status);
+    return `
     <tr>
       <td>${o.orderedAt ? new Date(o.orderedAt).toLocaleString('ko-KR') : '-'}</td>
       <td>
-        <div class="${o.paid ? 'paid' : 'unpaid'}">${o.paid ? '✅ 결제완료' : '⏳ 대기중'}</div>
-        <button class="toggle ${o.paid ? 'mark-unpaid' : 'mark-paid'}" onclick="togglePaid('${o.id}', ${!o.paid})">
-          ${o.paid ? '결제취소로 변경' : '결제확인 처리'}
-        </button>
-      </td>
-      <td>
-        ${o.paid ? `<a href="${mailtoLink(o)}" class="toggle mark-paid" style="text-decoration:none;display:inline-block;">✉️ 메일 보내기</a>` : '-'}
+        <div class="badge s${badgeIdx}">${status}</div>
+        <select class="status-select" onchange="updateStatus('${o.id}', this.value)">
+          ${STATUSES.map(s => `<option value="${s}" ${s === status ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
       </td>
       <td>
         ${o.zazzleOrderId
@@ -119,49 +123,40 @@ async function load() {
       <td>${esc(o.country)}</td>
       <td>${esc(o.koreanName)} (${esc(o.romanization)})</td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function esc(v) {
   return v == null ? '-' : String(v).replace(/</g, '&lt;');
 }
 
-function mailtoLink(o) {
-  const subject = `K-MY NAME · Your order is confirmed! (${o.product})`;
-  const body =
-`Hi ${o.name || ''},
-
-Thank you for your order! We've confirmed your payment.
-
-Order: ${o.product} ($${o.price})
-Your Korean name: ${o.koreanName || ''} (${o.romanization || ''})
-
-You can check your order status anytime here:
-https://k-my-name-app.vercel.app/order-status.html
-(Enter your email + romanized name: ${o.romanization || ''})
-
-Your item will ship within 5-7 business days. We'll update the tracking info on the status page once it's ready.
-
-Thank you again!
-K-MY NAME`;
-  return `mailto:${o.email || ''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-}
-
-async function togglePaid(id, newVal) {
+async function updateStatus(id, newStatus) {
   await fetch(`https://k-my-name-default-rtdb.firebaseio.com/orders/${id}.json`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ paid: newVal }),
+    body: JSON.stringify({ status: newStatus, paid: STATUSES.indexOf(newStatus) >= 1 }),
   });
   load();
 }
 
 async function saveZazzle(id) {
   const val = document.getElementById(`zz-${id}`).value.trim();
+  const patch = { zazzleOrderId: val };
+
+  // Zazzle 번호를 입력하면 아직 "배송중" 전 단계인 경우 자동으로 상태를 끌어올림
+  const res = await fetch(DB);
+  const data = await res.json();
+  const cur = data && data[id] ? getStatus(data[id]) : "결제전";
+  if (val && STATUSES.indexOf(cur) < STATUSES.indexOf("배송중")) {
+    patch.status = "배송중";
+    patch.paid = true;
+  }
+
   await fetch(`https://k-my-name-default-rtdb.firebaseio.com/orders/${id}.json`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ zazzleOrderId: val }),
+    body: JSON.stringify(patch),
   });
   load();
 }

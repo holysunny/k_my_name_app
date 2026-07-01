@@ -42,9 +42,10 @@
   .rc-product { font-weight: 800; font-size: 14px; }
   .rc-price { color: #7c3aed; font-weight: 700; font-size: 13px; }
   .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-  .badge.pending { background: #fef3c7; color: #b45309; }
-  .badge.paid { background: #ede9fe; color: #6d28d9; }
-  .badge.making { background: #dbeafe; color: #1d4ed8; }
+  .badge.pending { background: #ede9fe; color: #6d28d9; }
+  .badge.making { background: #fef3c7; color: #b45309; }
+  .badge.shipping { background: #dbeafe; color: #1d4ed8; }
+  .badge.delivered { background: #dcfce7; color: #16a34a; }
   .zz { margin-top: 8px; font-size: 12px; color: #4b5563; background: #f5f3ff; border-radius: 8px; padding: 8px 10px; }
   .empty { text-align: center; color: #9ca3af; font-size: 13px; padding: 20px; }
 </style>
@@ -92,10 +93,12 @@ async function lookup() {
   }
 
   resultsEl.innerHTML = orders.map(o => {
+    const status = o.status || (o.paid ? '결제완료' : '결제전');
     let badge, badgeText;
-    if (o.zazzleOrderId) { badge = 'making'; badgeText = '🎨 제작/배송 중'; }
-    else if (o.paid) { badge = 'paid'; badgeText = '✅ 결제 확인됨'; }
-    else { badge = 'pending'; badgeText = '⏳ 결제 대기중'; }
+    if (status === '배송완료') { badge = 'delivered'; badgeText = '📬 배송완료'; }
+    else if (status === '배송중') { badge = 'shipping'; badgeText = '🚚 배송중'; }
+    else if (status === '주문중') { badge = 'making'; badgeText = '🎨 제작중'; }
+    else { badge = 'pending'; badgeText = '✅ 주문 확인됨 · 준비 중'; }
 
     return `
       <div class="result-card">
