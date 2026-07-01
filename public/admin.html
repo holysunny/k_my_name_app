@@ -47,7 +47,7 @@
     <table>
       <thead>
         <tr>
-          <th>일시</th><th>결제상태</th><th>Zazzle 주문번호</th><th>이름</th><th>상품</th><th>가격</th>
+          <th>일시</th><th>결제상태</th><th>메일</th><th>Zazzle 주문번호</th><th>이름</th><th>상품</th><th>가격</th>
           <th>이메일</th><th>주소</th><th>도시</th><th>우편번호</th><th>국가</th><th>한국이름</th>
         </tr>
       </thead>
@@ -101,6 +101,9 @@ async function load() {
         </button>
       </td>
       <td>
+        ${o.paid ? `<a href="${mailtoLink(o)}" class="toggle mark-paid" style="text-decoration:none;display:inline-block;">✉️ 메일 보내기</a>` : '-'}
+      </td>
+      <td>
         ${o.zazzleOrderId
           ? `<div class="zz-done">✅ ${esc(o.zazzleOrderId)}</div>
              <div class="zz-row"><input id="zz-${o.id}" value="${esc(o.zazzleOrderId)}"><button onclick="saveZazzle('${o.id}')">수정</button></div>`
@@ -121,6 +124,27 @@ async function load() {
 
 function esc(v) {
   return v == null ? '-' : String(v).replace(/</g, '&lt;');
+}
+
+function mailtoLink(o) {
+  const subject = `K-MY NAME · Your order is confirmed! (${o.product})`;
+  const body =
+`Hi ${o.name || ''},
+
+Thank you for your order! We've confirmed your payment.
+
+Order: ${o.product} ($${o.price})
+Your Korean name: ${o.koreanName || ''} (${o.romanization || ''})
+
+You can check your order status anytime here:
+https://k-my-name-app.vercel.app/order-status.html
+(Enter your email + romanized name: ${o.romanization || ''})
+
+Your item will ship within 5-7 business days. We'll update the tracking info on the status page once it's ready.
+
+Thank you again!
+K-MY NAME`;
+  return `mailto:${o.email || ''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 async function togglePaid(id, newVal) {
