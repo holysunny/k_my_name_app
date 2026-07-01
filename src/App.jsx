@@ -13,12 +13,12 @@ const FORM_BASE    = "https://docs.google.com/forms/d/e/1FAIpQLSdIlknrv_B0XvEKny
 const FORM_NAME    = "entry.1366709707";
 const FORM_PRODUCT = "entry.1513610605";
 const GOODS = [
-  { id:1, name:"Ceramic Mug",      emoji:"☕", price:22, desc:"Name printed in Hangul & English", formName:"Ceramic Classic Mug (11oz) - $22", paypalUrl:"https://www.paypal.com/ncp/payment/U2ET4MZXHS8NS" },
-  { id:2, name:"Embroidered Tote", emoji:"👜", price:32, desc:"Hand-stitched name on cotton bag",  formName:"Embroidered Tote Bag - $32",       paypalUrl:"https://www.paypal.com/ncp/payment/RN7DDTLLT3H9G" },
-  { id:3, name:"Keychain",         emoji:"🗝️", price:12, desc:"Acrylic charm with your name",      formName:"Acrylic Keychain - $12",           paypalUrl:"https://www.paypal.com/ncp/payment/AN73PNX2KYVZA" },
-  { id:4, name:"Name Stamp",       emoji:"🪬", price:18, desc:"Traditional ink stamp",             formName:"Name Stamp - $18",                 paypalUrl:"https://www.paypal.com/ncp/payment/3VC6SAYJAREFG" },
-  { id:5, name:"Silk Pouch",       emoji:"🧧", price:28, desc:"Embroidered on silk fabric",        formName:"Silk Pouch - $28",                 paypalUrl:"https://www.paypal.com/ncp/payment/G2JVST66ECAKY" },
-  { id:6, name:"Wall Art Print",   emoji:"🖼️", price:38, desc:"Calligraphy art print, A4",        formName:"Wall Art Print (A4) - $38",        paypalUrl:"https://www.paypal.com/ncp/payment/KMH8X43QTQQN4" },
+  { id:1, name:"Ceramic Mug",      emoji:"☕", price:22, desc:"Name printed in Hangul & English", formName:"Ceramic Classic Mug (11oz) - $22", paypalUrl:"https://www.paypal.com/ncp/payment/U2ET4MZXHS8NS", detailUrl:"" },
+  { id:2, name:"Embroidered Tote", emoji:"👜", price:32, desc:"Hand-stitched name on cotton bag",  formName:"Embroidered Tote Bag - $32",       paypalUrl:"https://www.paypal.com/ncp/payment/RN7DDTLLT3H9G", detailUrl:"" },
+  { id:3, name:"Keychain",         emoji:"🗝️", price:12, desc:"Acrylic charm with your name",      formName:"Acrylic Keychain - $12",           paypalUrl:"https://www.paypal.com/ncp/payment/AN73PNX2KYVZA", detailUrl:"" },
+  { id:4, name:"Name Stamp",       emoji:"🪬", price:18, desc:"Traditional ink stamp",             formName:"Name Stamp - $18",                 paypalUrl:"https://www.paypal.com/ncp/payment/3VC6SAYJAREFG", detailUrl:"" },
+  { id:5, name:"Silk Pouch",       emoji:"🧧", price:28, desc:"Embroidered on silk fabric",        formName:"Silk Pouch - $28",                 paypalUrl:"https://www.paypal.com/ncp/payment/G2JVST66ECAKY", detailUrl:"" },
+  { id:6, name:"Wall Art Print",   emoji:"🖼️", price:38, desc:"Calligraphy art print, A4",        formName:"Wall Art Print (A4) - $38",        paypalUrl:"https://www.paypal.com/ncp/payment/KMH8X43QTQQN4", detailUrl:"" },
 ];
 
 const STEPS = [
@@ -399,6 +399,7 @@ Return ONLY valid JSON, no markdown:
           price: orderModal?.price,
           ...shipForm,
           orderedAt: new Date().toISOString(),
+          paid: false,
         }),
       });
       // 오너 ntfy 알림
@@ -1047,12 +1048,22 @@ Return ONLY valid JSON, no markdown:
             <div style={{ fontSize:11, color:"#9ca3af", lineHeight:1.4 }}>{g.desc}</div>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:4 }}>
               <span style={{ fontWeight:800, color:"#7c3aed", fontSize:15 }}>${g.price}</span>
-              <button
-                onClick={() => orderGoods(g)}
-                style={{ background:"#7c3aed", color:"#fff", border:"none",
-                  borderRadius:8, padding:"5px 11px", fontSize:12, cursor:"pointer", fontWeight:600 }}>
-                Order<span style={{ display:"block", fontSize:9, fontWeight:400, opacity:0.7 }}>주문하기</span>
-              </button>
+              <div style={{ display:"flex", gap:6 }}>
+                {g.detailUrl && (
+                  <a href={g.detailUrl} target="_blank" rel="noreferrer"
+                    style={{ background:"#f5f3ff", color:"#7c3aed", border:"1px solid #ddd6fe",
+                      borderRadius:8, padding:"5px 9px", fontSize:12, cursor:"pointer", fontWeight:600,
+                      textDecoration:"none", display:"inline-block" }}>
+                    상세<span style={{ display:"block", fontSize:9, fontWeight:400, opacity:0.7 }}>보기</span>
+                  </a>
+                )}
+                <button
+                  onClick={() => orderGoods(g)}
+                  style={{ background:"#7c3aed", color:"#fff", border:"none",
+                    borderRadius:8, padding:"5px 11px", fontSize:12, cursor:"pointer", fontWeight:600 }}>
+                  Order<span style={{ display:"block", fontSize:9, fontWeight:400, opacity:0.7 }}>주문하기</span>
+                </button>
+              </div>
             </div>
           </div>
         ))}

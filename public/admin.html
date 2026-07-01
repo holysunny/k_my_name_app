@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K-MY NAME · Orders Admin</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Noto Sans KR", sans-serif; background:#f5f3ff; margin:0; padding:16px; color:#1a1a1a; }
+  h1 { font-size:18px; margin:0 0 16px; }
+  .gate { max-width:320px; margin:80px auto; text-align:center; }
+  .gate input { width:100%; padding:12px; border:2px solid #e5e7eb; border-radius:10px; font-size:16px; margin-bottom:10px; }
+  .gate button { width:100%; padding:12px; background:#7c3aed; color:#fff; border:none; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; }
+  .stats { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+  .stat { background:#fff; border-radius:12px; padding:12px 16px; box-shadow:0 2px 8px rgba(109,40,217,0.08); }
+  .stat b { display:block; font-size:22px; color:#7c3aed; }
+  .stat span { font-size:11px; color:#9ca3af; }
+  #tablewrap { overflow-x:auto; background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(109,40,217,0.08); }
+  table { width:100%; border-collapse:collapse; }
+  th, td { padding:10px 12px; text-align:left; font-size:12px; border-bottom:1px solid #f0f0f0; white-space:nowrap; }
+  th { background:#f5f3ff; color:#6b7280; font-weight:700; position:sticky; top:0; }
+  .paid { color:#16a34a; font-weight:700; }
+  .unpaid { color:#dc2626; font-weight:700; }
+  .toggle { padding:4px 10px; border-radius:8px; border:none; cursor:pointer; font-size:11px; font-weight:700; margin-top:4px; }
+  .toggle.mark-paid { background:#dcfce7; color:#16a34a; }
+  .toggle.mark-unpaid { background:#fee2e2; color:#dc2626; }
+  #wrap { display:none; }
+  .empty { padding:40px; text-align:center; color:#9ca3af; font-size:13px; }
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <h1>🔒 Admin Login</h1>
+  <input type="password" id="pw" placeholder="Passcode" onkeydown="if(event.key==='Enter') tryLogin()">
+  <button onclick="tryLogin()">Enter</button>
+</div>
+
+<div id="wrap">
+  <h1>📦 K-MY NAME Orders</h1>
+  <div class="stats" id="stats"></div>
+  <div id="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th>일시</th><th>결제상태</th><th>이름</th><th>상품</th><th>가격</th>
+          <th>이메일</th><th>주소</th><th>도시</th><th>우편번호</th><th>국가</th><th>한국이름</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const PASSCODE = "sunny2026"; // 필요시 이 값만 바꿔서 재배포하면 비밀번호 변경됨
+const DB = "https://k-my-name-default-rtdb.firebaseio.com/orders.json";
+
+function tryLogin() {
+  const v = document.getElementById('pw').value;
+  if (v === PASSCODE) {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('wrap').style.display = 'block';
+    load();
+  } else {
+    alert('비밀번호가 틀렸어요');
+  }
+}
+
+async function load() {
+  const res = await fetch(DB);
+  const data = await res.json();
+  const orders = Object.entries(data || {}).map(([id, o]) => ({ id, ...o }))
+    .sort((a, b) => new Date(b.orderedAt || 0) - new Date(a.orderedAt || 0));
+
+  const paidCount = orders.filter(o => o.paid).length;
+  const unpaidCount = orders.length - paidCount;
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><b>${orders.length}</b><span>전체 주문</span></div>
+    <div class="stat"><b>${paidCount}</b><span>결제 완료</span></div>
+    <div class="stat"><b>${unpaidCount}</b><span>결제 대기 · 포기 가능성</span></div>
+  `;
+
+  if (orders.length === 0) {
+    document.getElementById('rows').innerHTML = '';
+    document.getElementById('tablewrap').innerHTML = '<div class="empty">아직 주문이 없어요</div>';
+    return;
+  }
+
+  document.getElementById('rows').innerHTML = orders.map(o => `
+    <tr>
+      <td>${o.orderedAt ? new Date(o.orderedAt).toLocaleString('ko-KR') : '-'}</td>
+      <td>
+        <div class="${o.paid ? 'paid' : 'unpaid'}">${o.paid ? '✅ 결제완료' : '⏳ 대기중'}</div>
+        <button class="toggle ${o.paid ? 'mark-unpaid' : 'mark-paid'}" onclick="togglePaid('${o.id}', ${!o.paid})">
+          ${o.paid ? '결제취소로 변경' : '결제확인 처리'}
+        </button>
+      </td>
+      <td>${esc(o.name)}</td>
+      <td>${esc(o.product)}</td>
+      <td>$${o.price ?? '-'}</td>
+      <td>${esc(o.email)}</td>
+      <td>${esc(o.address)}</td>
+      <td>${esc(o.city)}</td>
+      <td>${esc(o.postal)}</td>
+      <td>${esc(o.country)}</td>
+      <td>${esc(o.koreanName)} (${esc(o.romanization)})</td>
+    </tr>
+  `).join('');
+}
+
+function esc(v) {
+  return v == null ? '-' : String(v).replace(/</g, '&lt;');
+}
+
+async function togglePaid(id, newVal) {
+  await fetch(`https://k-my-name-default-rtdb.firebaseio.com/orders/${id}.json`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ paid: newVal }),
+  });
+  load();
+}
+</script>
+</body>
+</html>
