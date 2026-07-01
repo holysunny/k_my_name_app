@@ -81,8 +81,15 @@ function getStatus(o) {
 async function load() {
   const res = await fetch(DB);
   const data = await res.json();
-  const orders = Object.entries(data || {}).map(([id, o]) => ({ id, ...o }))
-    .sort((a, b) => new Date(b.orderedAt || 0) - new Date(a.orderedAt || 0));
+  const all = Object.entries(data || {}).map(([id, o]) => ({ id, ...o }));
+
+  // 번호는 주문 들어온 순서(오래된 순)로 고정 — 새 주문이 와도 기존 번호는 안 바뀜
+  const numByOrder = {};
+  all.slice().sort((a, b) => new Date(a.orderedAt || 0) - new Date(b.orderedAt || 0))
+    .forEach((o, i) => { numByOrder[o.id] = i + 1; });
+
+  // 화면 표시는 최신순
+  const orders = all.sort((a, b) => new Date(b.orderedAt || 0) - new Date(a.orderedAt || 0));
 
   document.getElementById('stats').innerHTML = `
     <div class="stat"><b>${orders.length}</b><span>전체 주문</span></div>
@@ -95,12 +102,12 @@ async function load() {
     return;
   }
 
-  document.getElementById('rows').innerHTML = orders.map((o, i) => {
+  document.getElementById('rows').innerHTML = orders.map(o => {
     const status = getStatus(o);
     const badgeIdx = STATUSES.indexOf(status);
     return `
     <tr>
-      <td><b>${i + 1}</b></td>
+      <td><b>${numByOrder[o.id]}</b></td>
       <td>${o.orderedAt ? new Date(o.orderedAt).toLocaleString('ko-KR') : '-'}</td>
       <td>
         <div class="badge s${badgeIdx}">${status}</div>
